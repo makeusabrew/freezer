@@ -2,13 +2,14 @@
 http = require "http"
 
 # local deps
-db = require "./lib/db"
+db   = require "./lib/db"
+Mode = require "./lib/mode"
 
 throw "Please supply a URL to retrieve snapshots for" if process.argv.length isnt 3
 
-currentSnapshot = 0
 snapshotCache = []
 url = require("url").parse process.argv[2]
+currentMode = Mode.factory "manual"
 
 # boot
 db.connect ->
@@ -28,6 +29,7 @@ start = (sequence) ->
 
     getSnapshots sequence, (snapshots) ->
         snapshotCache = snapshots
+
         for snapshot,i in snapshots
             date = new Date snapshot.timestamp
             console.log "#{i+1}) #{date}"
@@ -35,6 +37,8 @@ start = (sequence) ->
 onRequest = (sequence) ->
     (req, res) ->
         return res.end "invalid path" if req.url isnt url.path
+
+        currentSnapshot = currentMode.getSnapshot req
 
         snapshot = snapshotCache[currentSnapshot]
 
