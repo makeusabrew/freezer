@@ -11,7 +11,6 @@ throw "Please supply a URL to fetch and a fetch interval in milliseconds" if pro
 
 # boot
 db.connect ->
-    console.log "DB connected"
 
     db.collection("sequence").findOne {url: url}, (err, object) ->
         throw err if err
@@ -36,8 +35,6 @@ createSequence = (callback) ->
         callback object
 
 fetchLastHash = (sequence) ->
-    console.log "fetching last snapshot hash for #{sequence.url}"
-
     cursor = db.collection("snapshot").find({sequenceId: sequence._id})
 
     cursor.sort _id: -1
@@ -51,7 +48,7 @@ fetchLastHash = (sequence) ->
         startSequence sequence, interval, hash
 
 startSequence = (sequence, interval, hash) ->
-    console.log "starting sequence #{sequence._id}, interval #{interval}, start hash: #{hash}"
+    console.log "starting sequence #{sequence._id}, URL #{sequence.url}, interval #{interval}, start hash #{hash}\n"
 
     lastHash = hash
 
@@ -63,7 +60,9 @@ startSequence = (sequence, interval, hash) ->
 
             thisHash = getHash body
 
-            return console.log "hashes match, no action" if thisHash is lastHash
+            if thisHash is lastHash
+                console.log "ping" if Math.random() <= 0.1
+                return
 
             lastHash = thisHash
 

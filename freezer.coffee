@@ -37,11 +37,11 @@ onRequest = (sequence) ->
         return res.end "invalid path" if req.url isnt url.path
 
         snapshot = snapshotCache[currentSnapshot]
-        console.log "serving snapshot #{currentSnapshot+1}"
 
         res.setHeader "Content-Type", "application/json"
+        res.end snapshot.raw
 
-        res.end snapshotCache[currentSnapshot].raw
+        console.log "served snapshot #{currentSnapshot+1}"
 
 getSnapshots = (sequence, callback) ->
     cursor = db.collection("snapshot").find sequenceId: sequence._id
