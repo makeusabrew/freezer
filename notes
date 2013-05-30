@@ -1,0 +1,31 @@
+Core assumptions
+
+* a given URL is a unique sequence
+* the contents of a given URL are expected to change over time
+* the URL returns JSON
+
+Rough schemas
+
+** sequence
+- id
+- URL
+
+** snapshot
+- id
+- sequence_id
+- timestamp
+- hash
+- data (JSON)
+
+Rough parts
+
+** freezer
+- serves up a given sequence of snapshots
+- can be controlled in various ways
+-> @TODO
+
+** fetcher
+- takes a full URL
+- takes a fetch interval
+- checks the URL until the contents of it change
+- at which point it writes a new snapshot
