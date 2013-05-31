@@ -1,5 +1,7 @@
 # builtin/npm deps
-http = require "http"
+http          = require "http"
+fs            = require "fs"
+child_process = require "child_process"
 
 # local deps
 db     = require "./lib/db"
@@ -36,11 +38,12 @@ start = (sequence) ->
 
 onRequest = (sequence) ->
     (req, res) ->
+        res.setHeader "Access-Control-Allow-Origin", "*"
+
         return res.end "invalid path" if req.url isnt url.path
 
         snapshot = currentMode.getCurrentSnapshot req
 
-        res.setHeader "Access-Control-Allow-Origin", "*"
         res.setHeader "Content-Type", "application/json"
         res.end snapshot.raw
 
@@ -59,7 +62,7 @@ bindInput = (sequence) ->
 
         snapshot = currentMode.getCurrentSnapshot()
 
-        Prompt.write "Current snapshot: #{snapshot._index}) #{snapshot.timestamp}"
+        Prompt.write "Current snapshot: #{snapshot._index}) #{snapshot._date}"
 
       when "reload"    then currentMode.loadSnapshots -> Prompt.write "Snapshots reloaded"
 
@@ -98,15 +101,24 @@ handleArgs = (data) ->
         Prompt.write "Loading file #{matches[1]}"
         currentMode.loadAbsolute matches[1]-1
 
-      #@TODO implement
       when "diff", "fulldiff"
-        file1 = "output/"+files[matches[1]-1].path
-        file2 = "output/"+files[matches[2]-1].path
+        #@TODO DRY up and asyncify
+        s1 = currentMode.getSnapshot matches[1]-1
+        s2 = currentMode.getSnapshot matches[2]-1
+
+        path1 = "/tmp/snapshot_#{s1._id}"
+        path2 = "/tmp/snapshot_#{s2._id}"
+
+        fs.writeFileSync path1, formatJSON s1.raw
+        fs.writeFileSync path2, formatJSON s2.raw
 
         options = if arg.handler is "diff" then "--suppress-common-lines" else "--left-column"
 
-        child_process.exec "diff #{file1} #{file2} -y #{options}", (err, stdout, stderr) ->
+        child_process.exec "diff #{path1} #{path2} -y #{options}", (err, stdout, stderr) ->
           Prompt.write stdout
+
+          fs.unlinkSync path1
+          fs.unlinkSync path2
 
       when "show"
         snapshot = currentMode.getSnapshot matches[1]-1
