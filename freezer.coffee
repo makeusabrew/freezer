@@ -7,6 +7,7 @@ child_process = require "child_process"
 db     = require "./lib/db"
 Mode   = require "./lib/mode"
 Prompt = require "./lib/prompt"
+Utils  = require "./lib/utils"
 
 throw "Please supply a URL to retrieve snapshots for" if process.argv.length isnt 3
 
@@ -76,8 +77,6 @@ displayAll = (snapshots) ->
         str += " [✓]" if i is currentMode.getSnapshotIndex()
         Prompt.write str
 
-formatJSON = (data) -> JSON.stringify JSON.parse(data), null, 2
-
 args = [{
   pattern: /load (\d+)/
   handler: 'load'
@@ -114,7 +113,7 @@ handleArgs = (data) ->
         for snapshot in [s1, s2]
             do (snapshot) ->
 
-                fs.writeFile path+snapshot._id, formatJSON(snapshot.raw), (err) ->
+                fs.writeFile path+snapshot._id, Utils.formatJSON(snapshot.raw), (err) ->
                     throw err if err
 
                     files += 1
@@ -129,7 +128,7 @@ handleArgs = (data) ->
 
       when "show"
         snapshot = currentMode.getSnapshot matches[1]-1
-        Prompt.write formatJSON snapshot.raw
+        Prompt.write Utils.formatJSON snapshot.raw
 
     return true
 

@@ -7,3 +7,4 @@ action = (method) ->
 
 module.exports = (app) ->
     app.get "/sequence/:id", action "view"
+    app.get "/sequence/:id/snapshot/:snapshotId", action "viewSnapshot"
