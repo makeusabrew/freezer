@@ -2,6 +2,9 @@ express   = require "express"
 swig      = require "swig"
 app       = express()
 
+# shared lib deps
+db = require "./lib/db"
+
 # app config
 swig.init
     root: "#{__dirname}/views"
@@ -18,4 +21,7 @@ app.configure ->
 # app includes
 require("./routes")(app)
 
-app.listen 8888
+# boot
+db.connect ->
+    app.listen 8888
+    console.log "server listening on port 8888"

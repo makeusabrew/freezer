@@ -1,5 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Welcome{% endblock %}
 {% block content %}
-    <p>List of sequences etc here.</p>
+    {% for sequence in sequences %}
+        <p><a href="/sequence/{{sequence._id}}">{{ sequence.url }}</a></p>
+    {% endfor %}
 {% endblock %}
