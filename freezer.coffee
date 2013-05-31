@@ -50,30 +50,39 @@ onRequest = (sequence) ->
         Prompt.write "[web] served snapshot #{snapshot._index}) #{snapshot._date}"
 
 bindInput = (sequence) ->
-  Prompt.on "input", (data) ->
-    help = "Unrecognised command '#{data}'\n
-    - try 'list'"
+    Prompt.on "input", (data) ->
+        help = "Unrecognised command '#{data}'\n - try 'list', '(n)ext', '(b)ack', 'current', 'reload', 'list', 'load [n]', 'diff [n] [m]'"
 
-    # @TODO expose options based on what the currentMode implements
-    switch data
-      when "n", "next" then currentMode.loadRelative 1
-      when "b", "back" then currentMode.loadRelative -1
-      when "current"
+        # @TODO expose options based on what the currentMode implements
+        switch data
+            when "n", "next", "b", "back"
+                offset = if data is "n" or data is "next" then 1 else -1
+                currentMode.loadRelative offset
 
-        snapshot = currentMode.getCurrentSnapshot()
+                displayCurrent()
 
-        Prompt.write "Current snapshot: #{snapshot._index}) #{snapshot._date} (#{snapshot._id})"
+            when "current"
+                displayCurrent()
 
-      when "reload"    then currentMode.loadSnapshots -> Prompt.write "Snapshots reloaded"
+            when "reload"
+                currentMode.loadSnapshots -> Prompt.write "Snapshots reloaded"
 
-      when "list"
-        currentMode.getSnapshots (snapshots) ->
-          for snapshot,i in snapshots
-            str = "#{i+1}) #{snapshot._date}"
-            str += " [✓]" if i is currentMode.getSnapshotIndex()
-            Prompt.write str
-      else
-        Prompt.write help unless handleArgs data
+            when "list"
+                currentMode.getSnapshots displayAll
+
+            else
+                Prompt.write help unless handleArgs data
+
+displayCurrent = -> displaySnapshot currentMode.getCurrentSnapshot()
+
+displaySnapshot = (snapshot) -> Prompt.write "Current snapshot: #{snapshot._index}) #{snapshot._date} (#{snapshot._id})"
+
+displayAll = (snapshots) ->
+    for snapshot,i in snapshots
+        str = "#{i+1}) #{snapshot._date}"
+        str += " [✓]" if i is currentMode.getSnapshotIndex()
+        Prompt.write str
+
 
 args = [{
   pattern: /load (\d+)/
@@ -102,7 +111,7 @@ handleArgs = (data) ->
         currentMode.loadAbsolute matches[1]-1
 
       when "diff", "fulldiff"
-        #@TODO DRY up and asyncify
+        #@TODO tidy up; this is a bit of a mess
         s1 = currentMode.getSnapshot matches[1]-1
         s2 = currentMode.getSnapshot matches[2]-1
 
