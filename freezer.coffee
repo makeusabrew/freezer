@@ -58,17 +58,13 @@ onInput = (data) ->
 
             displayCurrent()
 
-        when "current"
-            displayCurrent()
+        when "current" then displayCurrent()
 
-        when "reload"
-            currentMode.loadSnapshots -> Prompt.write "Snapshots reloaded"
+        when "reload"  then currentMode.loadSnapshots -> Prompt.write "Snapshots reloaded"
 
-        when "list"
-            currentMode.getSnapshots displayAll
+        when "list"    then currentMode.getSnapshots displayAll
 
-        else
-            Prompt.write help unless handleArgs data
+        else           Prompt.write help unless handleArgs data
 
 displayCurrent = -> displaySnapshot currentMode.getCurrentSnapshot()
 
@@ -80,6 +76,7 @@ displayAll = (snapshots) ->
         str += " [✓]" if i is currentMode.getSnapshotIndex()
         Prompt.write str
 
+formatJSON = (data) -> JSON.stringify JSON.parse(data), null, 2
 
 args = [{
   pattern: /load (\d+)/
@@ -94,8 +91,6 @@ args = [{
   pattern: /show (\d+)$/
   handler: 'show'
 }]
-
-formatJSON = (data) -> JSON.stringify JSON.parse(data), null, 2
 
 handleArgs = (data) ->
   for arg in args
