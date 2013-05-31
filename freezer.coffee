@@ -25,14 +25,14 @@ db.connect ->
 start = (sequence) ->
     server = http.createServer onRequest sequence
 
-    server.listen 9999
-    Prompt.write "serving snapshots for sequence #{sequence._id}, URL: #{sequence.url}"
-
     bindInput sequence
 
     currentMode.setSequence sequence
 
-    currentMode.loadSnapshots -> Prompt.write "Snapshots loaded"
+    currentMode.loadSnapshots ->
+      server.listen 9999
+      Prompt.write "Serving snapshots for sequence #{sequence._id}, URL: #{sequence.url}"
+
 
 onRequest = (sequence) ->
     (req, res) ->
@@ -98,6 +98,7 @@ handleArgs = (data) ->
         Prompt.write "Loading file #{matches[1]}"
         currentMode.loadAbsolute matches[1]-1
 
+      #@TODO implement
       when "diff", "fulldiff"
         file1 = "output/"+files[matches[1]-1].path
         file2 = "output/"+files[matches[2]-1].path
