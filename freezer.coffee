@@ -25,53 +25,50 @@ db.connect ->
         start sequence
 
 start = (sequence) ->
-    server = http.createServer onRequest sequence
+    server = http.createServer onRequest
 
-    bindInput sequence
+    Prompt.on "input", onInput
 
     currentMode.setSequence sequence
 
     currentMode.loadSnapshots ->
-      server.listen 9999
-      Prompt.write "Serving snapshots for sequence #{sequence._id}, URL: #{sequence.url}"
+        server.listen 9999
+        Prompt.write "Serving snapshots for sequence #{sequence._id}, URL: #{sequence.url}"
 
+onRequest = (req, res) ->
+    res.setHeader "Access-Control-Allow-Origin", "*"
 
-onRequest = (sequence) ->
-    (req, res) ->
-        res.setHeader "Access-Control-Allow-Origin", "*"
+    return res.end "invalid path" if req.url isnt url.path
 
-        return res.end "invalid path" if req.url isnt url.path
+    snapshot = currentMode.getCurrentSnapshot req
 
-        snapshot = currentMode.getCurrentSnapshot req
+    res.setHeader "Content-Type", "application/json"
+    res.end snapshot.raw
 
-        res.setHeader "Content-Type", "application/json"
-        res.end snapshot.raw
+    Prompt.write "[web] served snapshot #{snapshot._index}) #{snapshot._date}"
 
-        Prompt.write "[web] served snapshot #{snapshot._index}) #{snapshot._date}"
+onInput = (data) ->
+    help = "Unrecognised command '#{data}'\n - try 'list', '(n)ext', '(b)ack', 'current', 'reload', 'list', 'load [n]', 'diff [n] [m]'"
 
-bindInput = (sequence) ->
-    Prompt.on "input", (data) ->
-        help = "Unrecognised command '#{data}'\n - try 'list', '(n)ext', '(b)ack', 'current', 'reload', 'list', 'load [n]', 'diff [n] [m]'"
+    # @TODO expose options based on what the currentMode implements
+    switch data
+        when "n", "next", "b", "back"
+            offset = if data is "n" or data is "next" then 1 else -1
+            currentMode.loadRelative offset
 
-        # @TODO expose options based on what the currentMode implements
-        switch data
-            when "n", "next", "b", "back"
-                offset = if data is "n" or data is "next" then 1 else -1
-                currentMode.loadRelative offset
+            displayCurrent()
 
-                displayCurrent()
+        when "current"
+            displayCurrent()
 
-            when "current"
-                displayCurrent()
+        when "reload"
+            currentMode.loadSnapshots -> Prompt.write "Snapshots reloaded"
 
-            when "reload"
-                currentMode.loadSnapshots -> Prompt.write "Snapshots reloaded"
+        when "list"
+            currentMode.getSnapshots displayAll
 
-            when "list"
-                currentMode.getSnapshots displayAll
-
-            else
-                Prompt.write help unless handleArgs data
+        else
+            Prompt.write help unless handleArgs data
 
 displayCurrent = -> displaySnapshot currentMode.getCurrentSnapshot()
 
