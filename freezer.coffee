@@ -106,19 +106,25 @@ handleArgs = (data) ->
         s1 = currentMode.getSnapshot matches[1]-1
         s2 = currentMode.getSnapshot matches[2]-1
 
-        path1 = "/tmp/snapshot_#{s1._id}"
-        path2 = "/tmp/snapshot_#{s2._id}"
-
-        fs.writeFileSync path1, formatJSON s1.raw
-        fs.writeFileSync path2, formatJSON s2.raw
-
         options = if arg.handler is "diff" then "--suppress-common-lines" else "--left-column"
+        path = "/tmp/snapshot_"
+        files = 0
 
-        child_process.exec "diff #{path1} #{path2} -y #{options}", (err, stdout, stderr) ->
-          Prompt.write stdout
+        for snapshot in [s1, s2]
+            do (snapshot) ->
 
-          fs.unlinkSync path1
-          fs.unlinkSync path2
+                fs.writeFile path+snapshot._id, formatJSON(snapshot.raw), (err) ->
+                    throw err if err
+
+                    files += 1
+
+                    return if files < 2
+
+                    child_process.exec "diff #{path+s1._id} #{path+s2._id} -y #{options}", (err, stdout, stderr) ->
+                        Prompt.write stdout
+
+                        fs.unlink path+s1._id, (err) ->
+                        fs.unlink path+s2._id, (err) ->
 
       when "show"
         snapshot = currentMode.getSnapshot matches[1]-1
