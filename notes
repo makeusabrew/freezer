@@ -38,3 +38,61 @@ Notes
 
 Summaries
  - range of files in sequential order representing a particular scenario
+
+ --
+ Need to think about various interfaces and how they shape the app. At the moment
+ the 'freezer' is solely a CLI app which only exposes one endpoint at once - this
+ restriction makes sense at this level as it's pretty hard to mentally manage
+ 1*N snapshots, let alone M*N all from one prompt.
+
+ So, what is the role of the web server? Why can't it just be an interface into
+ the same core logic (list, reload, serve, etc) but on a more managable N*M basis?
+ That way there's nothing stopping a CLI connection, a server connection, some sort
+ of remote driver / automated connection etc...
+
+ The only restrictions we should have over a server:port combo is that only one
+ session per URL can be active at once - because one 'mode' dictates what file
+ is served (e.g. you can't have two 'manual' sessions overlapping on one URL)
+
+ One workaround to the above could be to optionally supply an override URL to
+ expose the session on, e.g. /foobar could proxy /my/proper/url.json
+
+ So then, the 'freezer' becomes a standalone server which is always running on
+ a specific port; the CLI, server, etc clients all know where it's running, or
+ can ask about it via *some* known endpoint (really that can be config, DB, a
+ queue... whatever)
+
+ Each app can then request a new session:
+ * URL
+ * proxy URL (maybe; if desired - easy to do)
+ * mode (defaults to manual)
+
+ For now sessions will always be granted - we need some way of maintaining them
+ and timing out duff ones. Another meta-client perhaps might be nice to get
+ a list of actives etc
+
+ Current freezer.coffee will need to be reworked into cli.coffee or something as
+ appropriate. Server is new and hasn't got near the concept of serving a session
+ so nothing to rework there, just build from scratch.
+
+ Last major piece of the puzzle is how something could be automated for testing
+ purposes. Let's assume a given project can control what endpoint it wants to
+ hit in test mode; or at least the base URL of it (but assume the whole one for now).
+ We need a way, programatically, of starting a new session and controlling it. The
+ most pragmatic way of doing this would be an HTTP API which would itself be another
+ client app (albeit one that also exposes itself over http). That API could expose
+ whatever commands it wanted; start session, stop session, select snapshot, set mode
+ etc.
+
+ Expanding on the above a bit; there's no reason the addition and deletion of snapshots
+ shouldn't be exposed too. Yes, the most common way of writing a snapshot is via a spider,
+ but it shouldn't have to be. Again, an API could then open up a way of writing new snapshots
+ or even bulk upload from elsewhere.
+
+ --
+ Some notes on all these interfaces: currently the server and cli apps would share the same
+ *code*, thus we'd keep things DRY by them physically re-using the same objects and classes.
+ The API, too, would I guess use these. The fetcher doesn't currently use any sort of
+ reusable stuff so that would need extracting so other clients can write snapshots.
+ Can't help but think in an ideal, far away version everything would just
+ go via the API, albeit not over HTTP unless necessary.
