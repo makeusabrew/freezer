@@ -60,15 +60,16 @@ startSequence = (sequence, interval, hash) ->
 
             thisHash = getHash body
 
-            if thisHash is lastHash
-                console.log "ping" if Math.random() <= 0.1
-                return
+            return process.stdout.write "." if thisHash is lastHash
 
-            lastHash = thisHash
+            process.stdout.write "\n"
 
             data = parseJSON body
 
-            return console.log "can't save JSON" if not data
+            return console.log "cannot save JSON" if not data
+
+            # make sure we only save the hash once we're sure we can save
+            lastHash = thisHash
 
             writeSnapshot sequence, body, data, thisHash
 
