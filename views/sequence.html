@@ -5,7 +5,7 @@
     <ol>
         {% for snapshot in snapshots %}
             <li>
-            <a href="/sequence/{{ sequence._id }}/snapshot/{{ snapshot._id }}">{{ snapshot.timestamp|date('H:i:s') }}</a>
+                <a href="/sequence/{{ sequence._id }}/snapshot/{{ snapshot._id }}">{{ snapshot.timestamp|date('d/m/Y H:i:s') }}</a>
             </li>
         {% endfor %}
     </ol>
