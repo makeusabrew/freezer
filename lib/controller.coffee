@@ -1,6 +1,6 @@
 template = require "swig"
 
-class BaseController
+class Controller
     constructor: ->
         #
 
@@ -8,4 +8,4 @@ class BaseController
         tmpl = template.compileFile "#{tpl}.html"
         tmpl.render data
 
-module.exports = BaseController
+module.exports = Controller

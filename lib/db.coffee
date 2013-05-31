@@ -17,6 +17,8 @@ exports =
 
     collection: (name) -> exports.db.collection name
 
+    findById: (name, id, callback) -> @collection(name).findOne _id: @toObjectId(id), callback
+
     toObjectId: (id) -> new ObjectID id
 
 module.exports = exports

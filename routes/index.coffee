@@ -8,5 +8,5 @@ action = (method) ->
 module.exports = (app) ->
     app.get "/", action "home"
 
-    # external routes here...
-    # require("./sequences")(app)
+    # external routes
+    require("./sequence")(app)
