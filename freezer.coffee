@@ -62,7 +62,7 @@ bindInput = (sequence) ->
 
         snapshot = currentMode.getCurrentSnapshot()
 
-        Prompt.write "Current snapshot: #{snapshot._index}) #{snapshot._date}"
+        Prompt.write "Current snapshot: #{snapshot._index}) #{snapshot._date} (#{snapshot._id})"
 
       when "reload"    then currentMode.loadSnapshots -> Prompt.write "Snapshots reloaded"
 
