@@ -1,11 +1,16 @@
 {
-    "name": "freezer",
-    "version": "0.0.0",
-    "dependencies": {
-        "request": "*",
-        "mkdirp": "*",
-        "mongodb": "*",
-        "swig": "*",
-        "express": "*"
-    }
+  "name": "freezer",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "request": "*",
+    "mkdirp": "*",
+    "mongodb": "*",
+    "swig": "*",
+    "express": "*"
+  },
+  "devDependencies": {
+    "grunt": "*",
+    "grunt-simple-mocha": "~0.4.0"
+  }
 }
