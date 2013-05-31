@@ -29,3 +29,12 @@ Rough parts
 - takes a fetch interval
 - checks the URL until the contents of it change
 - at which point it writes a new snapshot
+
+Annotations
+ - arbitrary notes on single, multiple or ranges of files
+
+Notes
+ - random notes against a sequence bound to time rather than a file (e.g. "spotted xxx") to allow further investigation
+
+Summaries
+ - range of files in sequential order representing a particular scenario

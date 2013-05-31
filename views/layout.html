@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Freezer{% endblock %}</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/bootstrap/css/bootstrap.min.css" media="screen">
+
+    <style type="text/css">
+        body {
+            margin-top:2em;
+        }
+    </style>
+
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+
+        <div class="navbar">
+            <div class="navbar-inner">
+                <a class="brand" href="/">freezer</a>
+                <ul class="nav">
+                </ul>
+            </div>
+        </div>
+
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>
