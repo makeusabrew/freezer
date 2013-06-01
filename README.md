@@ -1,11 +1,15 @@
 ## Freezer - serving ice-cold JSON, just how you like it
 
 Freezer attempts to take the pain out of building apps which consume
-fast-changing JSON endpoints over HTTP. It does this by saving a copy of a
-feed each time it changes and giving you fine-grained control over replaying
-those changes at when *you* want them to change. These changes can be initiated
-manually or programatically to allow manual or automated testing against
-traditionally hard to capture, hard to control and hard to replay data.
+fast-changing JSON endpoints. It is best suited to projects which receive
+data from sources outside of their control which is hard to reproduce but
+important to code against.
+
+It works by saving a copy of a given feed each time it changes, later
+allowing fine-grained playback of those changes when *you* want them to
+change. These changes can be initiated manually or programatically
+to allow manual or automated testing against traditionally hard to capture,
+hard to analyse, hard to control and hard to replay data.
 
 ## How?
 
@@ -15,21 +19,21 @@ use of the project as it was intended.
 
 ### Client apps
 
-* *fetcher*: watches a given fully-qualified URL at a specified interval;
+* **fetcher**: watches a given fully-qualified URL at a specified interval;
 whenever the contents of that URL changes it writes a 'snapshot' of the file
 to MongoDB with a timestamp and a checksum
-* *cli*: given a URL which has some snapshots (created by the previous app),
+* **cli**: given a URL which has some snapshots (created by the fetcher),
 this app lets you manage which snapshot is served and when, as well as letting
 you easily see the contents of and even diff snapshots
-* *web*: not yet implemented, but a more user-friendly version of the CLI app
+* **web**: not yet implemented, but a more user-friendly version of the CLI app
 ideally allowing multiple sessions to be managed at once as well as adding
 annotations to snapshots, splitting sequences, etc
 
 ### Server processes
 
-* *freezer*: an HTTP server which maps inbound requests onto sequences currently
+* **freezer**: an HTTP server which maps inbound requests onto sequences currently
 being managed (e.g. via the CLI app) and serves the relevant snapshot
-* *api*: not implemented yet, a RESTful HTTP endpoint which will allow remote
+* **api**: not implemented yet, a RESTful HTTP endpoint which will allow remote
 clients to create sessions, sequences, snapshots etc. Primarily intended to
 allow automated testing via external scripts.
 
@@ -49,10 +53,11 @@ Using the bundled client apps, the next thing to do is to start capturing some
 
 Which will output something like:
 
-```creating new sequence for http://api.bbcnews.appengine.co.uk/stories/world
-starting sequence 51aa2a9b6544e61a1a000001, URL http://api.bbcnews.appengine.co.uk/stories/world, interval 60000, start hash null
-
-wrote snapshot 51aa2a9c6544e61a1a000002```
+    creating new sequence for http://api.bbcnews.appengine.co.uk/stories/world
+    starting sequence 51aa2a9b6544e61a1a000001
+    URL http://api.bbcnews.appengine.co.uk/stories/world, interval 60000, start hash null
+    
+    wrote snapshot 51aa2a9c6544e61a1a000002
 
 This will fetch the BBC's top world stories every minute - though the interval can be as
 low as you want it. Whenever the response differs to the last, a new snapshot will be
@@ -67,8 +72,9 @@ Once you've got some snapshots captured you can run the rather crude cli app:
 
 Which will output something like:
 
-```Managing snapshots for sequence 51aa2a9b6544e61a1a000001, URL: http://api.bbcnews.appengine.co.uk/stories/world
-Snapshot server responding to requests on http://localhost:9999/stories/world```
+    Managing snapshots for sequence 51aa2a9b6544e61a1a000001
+    URL: http://api.bbcnews.appengine.co.uk/stories/world
+    Snapshot server responding to requests on http://localhost:9999/stories/world
 
 This tells the freezer process that the CLI app is responsible for which snapshot
 of the BBC's stories to serve until the CLI app exits. The URL these snapshots
@@ -79,19 +85,23 @@ Now when hitting ```http://localhost:9999/stories/world``` you'll be served
 the first snapshot captured for that URL. As the CLI app is responsible for
 what's served while it runs, we can change that:
 
-```<= list
-1) Sat Jun 01 2013 18:08:44 GMT+0100 (BST) [✓]
-2) Sat Jun 01 2013 18:09:45 GMT+0100 (BST)
-3) Sat Jun 01 2013 18:14:49 GMT+0100 (BST)
-4) Sat Jun 01 2013 18:20:54 GMT+0100 (BST)
-5) Sat Jun 01 2013 18:30:01 GMT+0100 (BST)
-<= load 5
-Loading file 5... OK
-<= current
-Current snapshot: 5) Sat Jun 01 2013 18:30:01 GMT+0100 (BST) (51aa2f996544e61a1a000006)```
+    <= list
+    1) Sat Jun 01 2013 18:08:44 GMT+0100 (BST) [✓]
+    2) Sat Jun 01 2013 18:09:45 GMT+0100 (BST)
+    3) Sat Jun 01 2013 18:14:49 GMT+0100 (BST)
+    4) Sat Jun 01 2013 18:20:54 GMT+0100 (BST)
+    5) Sat Jun 01 2013 18:30:01 GMT+0100 (BST)
+    <= load 5
+    Loading file 5... OK
+    <= current
+    Current snapshot: 5) Sat Jun 01 2013 18:30:01 GMT+0100 (BST) (51aa2f996544e61a1a000006)
 
 And voila: each request to ```http://localhost:9999/stories/world``` will now serve
-the contents of the fifth snapshot.
+the contents of snapshot 5.
+
+**Note** that use of the BBC's stories feed isn't a particularly good
+example as it doesn't change much nor is it particularly complex. This
+example could do with replacing with a faster, larger feed.
 
 ## License
 
