@@ -27,7 +27,7 @@ Freezer.start ->
   Freezer.startSession options, (err, session, sequence) ->
     throw err if err
 
-    Prompt.write "registered new session #{session._id}"
+    Prompt.log "registered new session #{session._id}"
 
     start session
 
@@ -36,8 +36,8 @@ start = (session) ->
   currentMode.setSession session
 
   currentMode.loadSnapshots ->
-    Prompt.write "Managing snapshots for sequence #{session.sequence._id}, URL: #{session.sequence.url}"
-    Prompt.write "Snapshot server responding to requests on http://localhost:9999#{session.path}"
+    Prompt.log "Managing snapshots for sequence #{session.sequence._id}, URL: #{session.sequence.url}"
+    Prompt.log "Snapshot server responding to requests on http://localhost:9999#{session.path}"
 
   Prompt.on "SIGINT", ->
     Freezer.deleteSession session._id, (err) ->
@@ -57,21 +57,21 @@ Prompt.on "input", (data) ->
 
         when "current" then displayCurrent()
 
-        when "reload"  then currentMode.loadSnapshots -> Prompt.write "Snapshots reloaded"
+        when "reload"  then currentMode.loadSnapshots -> Prompt.log "Snapshots reloaded"
 
         when "list"    then currentMode.getSnapshots displayAll
 
-        else           Prompt.write help unless handleArgs data
+        else           Prompt.log help unless handleArgs data
 
 displayCurrent = -> displaySnapshot currentMode.getCurrentSnapshot()
 
-displaySnapshot = (snapshot) -> Prompt.write "Current snapshot: #{snapshot._index}) #{snapshot._date} (#{snapshot._id})"
+displaySnapshot = (snapshot) -> Prompt.log "Current snapshot: #{snapshot._index}) #{snapshot._date} (#{snapshot._id})"
 
 displayAll = (snapshots) ->
     for snapshot,i in snapshots
         str = "#{snapshot._index}) #{snapshot._date}"
         str += " [✓]" if i is currentMode.getSnapshotIndex()
-        Prompt.write str
+        Prompt.log str
 
 args = [{
   pattern: /load (\d+)/
@@ -94,9 +94,9 @@ handleArgs = (data) ->
 
     switch arg.handler
       when "load"
-        Prompt.write "Loading file #{matches[1]}"
+        Prompt.log "Loading file #{matches[1]}"
         currentMode.loadAbsolute matches[1]-1, (err) ->
-          Prompt.write if err then err else "OK"
+          Prompt.log if err then err else "OK"
 
       when "diff", "fulldiff"
         #@TODO tidy up; this is a bit of a mess
@@ -110,7 +110,7 @@ handleArgs = (data) ->
         for snapshot in [s1, s2]
             do (snapshot) ->
 
-                fs.writeFile path+snapshot._id, Utils.formatJSON(snapshot.raw), (err) ->
+                fs.logFile path+snapshot._id, Utils.formatJSON(snapshot.raw), (err) ->
                     throw err if err
 
                     files += 1
@@ -118,14 +118,14 @@ handleArgs = (data) ->
                     return if files < 2
 
                     child_process.exec "diff #{path+s1._id} #{path+s2._id} -y #{options}", (err, stdout, stderr) ->
-                        Prompt.write stdout
+                        Prompt.log stdout
 
                         fs.unlink path+s1._id, (err) ->
                         fs.unlink path+s2._id, (err) ->
 
       when "show"
         snapshot = currentMode.getSnapshot matches[1]-1
-        Prompt.write Utils.formatJSON snapshot.raw
+        Prompt.log Utils.formatJSON snapshot.raw
 
     return true
 

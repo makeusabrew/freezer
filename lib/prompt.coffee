@@ -7,6 +7,8 @@ emitter     = new EventEmitter
 
 doPrompt = -> process.stdout.write prompt+currentLine
 
+write = (data) -> process.stdout.write data
+
 writeLine = (data, prefix = "") ->
   # clear what we've currently got on the last line
   # [2K = clear line
@@ -43,8 +45,8 @@ process.stdin.on "data", (char) ->
       currentLine = currentLine.substr 0, currentLine.length-1
 
     else
-      process.stdout.write char
       currentLine += char
+      write char
 
 module.exports =
   start: ->
@@ -55,6 +57,8 @@ module.exports =
 
     doPrompt()
 
-  write: writeLine
+  write: write
+
+  log: writeLine
 
   on: (message, callback) -> emitter.on message, callback
