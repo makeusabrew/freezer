@@ -5,49 +5,46 @@ inPrompt    = "<= "
 currentLine = ""
 emitter     = new EventEmitter
 
-clearLine = ->
-    # [2K = clear line
-    # [(n)D = move (n) characters left
-    process.stdout.write "\u001B[2K\u001B[100D"
-
 doPrompt = -> process.stdout.write prompt+currentLine
 
-writeLine = (data) ->
+writeLine = (data, prefix = "") ->
   # clear what we've currently got on the last line
-  clearLine()
+  # [2K = clear line
+  # [(n)D = move (n) characters left
+  process.stdout.write "\u001B[2K\u001B[100D"
 
   # add the data for the new line
-  process.stdout.write data+"\n"
+  process.stdout.write prefix+data+"\n"
+
+  # if we're writing the current line, get rid of it
+  currentLine = "" if data is currentLine
 
   # restore the contents of the current line & prompt
   doPrompt()
 
+  return data
+
+
 process.stdin.on "data", (char) ->
-  if char is "\r"
-    # carriage return - check input
+  switch char
+    when "\r"
 
-    # store the current line...
-    data = currentLine
-    # ... wipe it
-    currentLine = ""
+      emitter.emit 'input', writeLine currentLine, inPrompt
 
-    # write the new line to the prompt (this will restore 'currentLine' afterwards)
-    writeLine inPrompt+data
+    when "\u0003"
+      # CTRL+C
+      emitter.emit 'SIGINT'
 
-    emitter.emit 'input', data
+    when "\u0008", "\x7f"
+      # backspace
+      # move one char left (1D), delete from cursor to end of line (0K)
+      process.stdout.write "\u001B[1D\u001B[0K"
 
-  else if char is "\u0003"
-    # CTRL+C
-    emitter.emit 'SIGINT'
-  else if char is "\u0008" or char is "\x7f"
-    # backspace
-    # move one char left (1D), delete from cursor to end of line (0K)
-    process.stdout.write "\u001B[1D\u001B[0K"
+      currentLine = currentLine.substr 0, currentLine.length-1
 
-    currentLine = currentLine.substr 0, currentLine.length-1
-  else
-    process.stdout.write char
-    currentLine += char
+    else
+      process.stdout.write char
+      currentLine += char
 
 module.exports =
   start: ->

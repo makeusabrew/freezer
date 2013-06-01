@@ -27,7 +27,7 @@ Freezer.start ->
   Freezer.startSession options, (err, session, sequence) ->
     throw err if err
 
-    console.log "registered new session #{session._id}"
+    Prompt.write "registered new session #{session._id}"
 
     start session
 
