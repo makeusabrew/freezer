@@ -89,7 +89,6 @@ Freezer =
         callback null, session
 
   setSessionSnapshot: (sessionId, snapshotId, callback) ->
-    console.log sessionId, snapshotId
     db.collection("session").findAndModify(
       {_id: sessionId},
       {_id: 1},
@@ -97,6 +96,10 @@ Freezer =
       {},
       (err, session) -> callback err
     )
+
+  deleteSession: (sessionId, callback) ->
+    db.collection("session").remove _id: sessionId, callback
+
 
 
 module.exports = Freezer

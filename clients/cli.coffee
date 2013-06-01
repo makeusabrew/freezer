@@ -33,15 +33,20 @@ Freezer.start ->
 
 start = (session) ->
 
-  Prompt.on "input", onInput
-
   currentMode.setSession session
 
   currentMode.loadSnapshots ->
     Prompt.write "Managing snapshots for sequence #{session.sequence._id}, URL: #{session.sequence.url}"
     Prompt.write "Snapshot server responding to requests on http://localhost:9999#{session.path}"
 
-onInput = (data) ->
+  Prompt.on "SIGINT", ->
+    Freezer.deleteSession session._id, (err) ->
+      throw err if err
+
+      console.log "session terminated, exiting"
+      process.exit 0
+
+Prompt.on "input", (data) ->
     help = "Unrecognised command '#{data}'\n - try 'list', '(n)ext', '(b)ack', 'current', 'reload', 'list', 'load [n]', 'diff [n] [m]'"
 
     # @TODO expose options based on what the currentMode implements

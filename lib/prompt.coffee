@@ -37,8 +37,8 @@ process.stdin.on "data", (char) ->
     emitter.emit 'input', data
 
   else if char is "\u0003"
-    # CTRL+C; cya!
-    process.exit 0
+    # CTRL+C
+    emitter.emit 'SIGINT'
   else if char is "\u0008" or char is "\x7f"
     # backspace
     # move one char left (1D), delete from cursor to end of line (0K)
