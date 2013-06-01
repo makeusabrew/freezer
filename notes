@@ -84,6 +84,12 @@ Summaries
  whatever commands it wanted; start session, stop session, select snapshot, set mode
  etc.
 
+ Update: the above isn't right; the API can't be a client app, it has to be part
+ of the freezer process itself; it is after all *its* public API. Describing an API
+ as a client is wrong and also assumes it has direct access to the same underlying
+ objects as the freezer anyway. The freezer process simply *exposes* its API over http,
+ and automated processes can connect to it via their own client implementations.
+
  Expanding on the above a bit; there's no reason the addition and deletion of snapshots
  shouldn't be exposed too. Yes, the most common way of writing a snapshot is via a spider,
  but it shouldn't have to be. Again, an API could then open up a way of writing new snapshots
