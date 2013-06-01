@@ -8,6 +8,11 @@
 # stuff
 ###
 
+# @TODO: DRY this file up
+# @TODO: comment, or eradicate, its idiosyncracies
+# @TODO: make its methods a bit more predictable and idiomatic; even if that
+# means more composition
+
 db = require "./db"
 
 getFirst = (cursor, callback) ->
@@ -102,5 +107,9 @@ Freezer =
 
   getSequences: (callback) ->
     db.collection("sequence").find().toArray callback
+
+  getSnapshot: (id, callback) -> db.findById "snapshot", id, callback
+
+  getSequence: (id, callback) -> db.findById "sequence", id, callback
 
 module.exports = Freezer

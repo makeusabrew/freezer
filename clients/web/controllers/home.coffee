@@ -1,12 +1,11 @@
-Controller = require "../lib/controller"
-#@TODO mappers, or maybe something like mongoose?
-db = require "../lib/db"
+Controller = require "../../../lib/controller"
+Freezer    = require "../../../lib/client"
 
 class HomeController extends Controller
-    home: (req, res) ->
-        db.collection("sequence").find().sort({_id: 1}).toArray (err, docs) =>
-            res.send @render "index",
-                page: "home"
-                sequences: docs
+  home: (req, res) ->
+    Freezer.getSequences (err, docs) =>
+      res.send @render "index",
+        page: "home"
+        sequences: docs
 
 module.exports = HomeController
