@@ -7,7 +7,8 @@
     "mkdirp": "*",
     "mongodb": "*",
     "swig": "*",
-    "express": "*"
+    "express": "*",
+    "restify": "*"
   },
   "devDependencies": {
     "grunt": "*",

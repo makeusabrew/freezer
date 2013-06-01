@@ -100,6 +100,7 @@ Freezer =
   deleteSession: (sessionId, callback) ->
     db.collection("session").remove _id: sessionId, callback
 
-
+  getSequences: (callback) ->
+    db.collection("sequence").find().toArray callback
 
 module.exports = Freezer
