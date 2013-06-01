@@ -27,16 +27,17 @@ Freezer.start ->
 
     console.log "registered new session #{session._id}"
 
-    start session.sequence
+    start session
 
-start = (sequence) ->
+start = (session) ->
 
   Prompt.on "input", onInput
 
-  currentMode.setSequence sequence
+  currentMode.setSession session
 
   currentMode.loadSnapshots ->
-    Prompt.write "Serving snapshots for sequence #{sequence._id}, URL: #{sequence.url}"
+    Prompt.write "Managing snapshots for sequence #{session.sequence._id}, URL: #{session.sequence.url}"
+    Prompt.write "Snapshot server responding to requests on http://localhost:9999#{session.path}"
 
 onInput = (data) ->
     help = "Unrecognised command '#{data}'\n - try 'list', '(n)ext', '(b)ack', 'current', 'reload', 'list', 'load [n]', 'diff [n] [m]'"
@@ -45,9 +46,7 @@ onInput = (data) ->
     switch data
         when "n", "next", "b", "back"
             offset = if data is "n" or data is "next" then 1 else -1
-            currentMode.loadRelative offset
-
-            displayCurrent()
+            currentMode.loadRelative offset, -> displayCurrent()
 
         when "current" then displayCurrent()
 
@@ -89,7 +88,8 @@ handleArgs = (data) ->
     switch arg.handler
       when "load"
         Prompt.write "Loading file #{matches[1]}"
-        currentMode.loadAbsolute matches[1]-1
+        currentMode.loadAbsolute matches[1]-1, (err) ->
+          Prompt.write if err then err else "OK"
 
       when "diff", "fulldiff"
         #@TODO tidy up; this is a bit of a mess

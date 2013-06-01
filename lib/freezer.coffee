@@ -1,3 +1,13 @@
+###
+# Think of this as the main API entry point into the system, e.g.
+# effectively all of these methods will one day be mapped to a remote
+# API endpoint (be it RESTful or whatever)
+#
+# As such it's quite large at the moment; feels like we at least need some
+# neater mappers to avoid the constant db.collection and result manipulation
+# stuff
+###
+
 db = require "./db"
 
 getFirst = (cursor, callback) ->
@@ -5,6 +15,7 @@ getFirst = (cursor, callback) ->
     return callback err, null if err
 
     callback null, if docs.length then docs[0] else null
+
 Freezer =
   start: (callback) -> db.connect callback
 
@@ -15,8 +26,7 @@ Freezer =
     getFirst cursor, callback
   
   getCurrentSnapshot: (session, request, callback) ->
-    #@TODO at the moment we always just serve the first snapshot...
-    cursor = db.collection("snapshot").find sequenceId: session.sequenceId
+    cursor = db.collection("snapshot").find _id: session.snapshotId
 
     cursor.sort(_id: 1).limit(1)
 
@@ -66,6 +76,7 @@ Freezer =
         sequenceId: sequence._id
         path: options.path
         mode: options.mode
+        snapshotId: null
         created: new Date
         updated: new Date
 
@@ -76,5 +87,16 @@ Freezer =
         session.sequence = sequence
 
         callback null, session
+
+  setSessionSnapshot: (sessionId, snapshotId, callback) ->
+    console.log sessionId, snapshotId
+    db.collection("session").findAndModify(
+      {_id: sessionId},
+      {_id: 1},
+      {$set: snapshotId: snapshotId},
+      {},
+      (err, session) -> callback err
+    )
+
 
 module.exports = Freezer

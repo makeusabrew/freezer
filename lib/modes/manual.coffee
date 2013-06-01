@@ -20,12 +20,21 @@ class Manual extends Base
 
     getSnapshotIndex: -> return snapshotIndex
 
-    loadRelative: (offset) -> snapshotIndex += offset
+    loadRelative: (offset, callback) ->
+      @loadAbsolute snapshotIndex+offset, callback
 
-    loadAbsolute: (index) -> snapshotIndex = index
+    loadAbsolute: (index, callback) ->
+      snapshot = snapshotCache[index]
+      callback "invalid snapshot index #{index}" if not snapshot
+
+      Freezer.setSessionSnapshot @session._id, snapshot._id, (err) ->
+        return callback err if err
+
+        snapshotIndex = index
+        callback()
 
     loadSnapshots: (callback) ->
-      Freezer.getSnapshotsForSequence @sequence._id, (err, docs) ->
+      Freezer.getSnapshotsForSequence @session.sequenceId, (err, docs) ->
         throw err if err
 
         snapshotCache = (augmentSnapshot s,i for s,i in docs)
@@ -34,6 +43,6 @@ class Manual extends Base
 
     getSnapshots: (callback) -> @loadSnapshots callback
 
-    setSequence: (sequence) -> @sequence = sequence
+    setSession: (session) -> @session = session
 
 module.exports = Manual
