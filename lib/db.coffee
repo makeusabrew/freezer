@@ -21,7 +21,7 @@ exports =
 
   collection: (name) -> db.collection name
 
-  findById: (name, id, callback) -> @collection(name).findOne _id: @toObjectId(id), callback
+  findById: (name, id, callback) -> @collection(name).findOne _id: id, callback
 
   toObjectId: (id) -> new ObjectID id
 

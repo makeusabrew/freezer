@@ -71,6 +71,9 @@ Freezer =
     cursor.sort timestamp: 1
     cursor.toArray callback
 
+  countSnapshotsForSequence: (sequenceId, callback) ->
+    db.collection("snapshot").count sequenceId: sequenceId, callback
+
   startSession: (options, callback) ->
     @getSequenceByUrl options.url, (err, sequence) =>
       return callback err, null if err
@@ -105,8 +108,9 @@ Freezer =
   deleteSession: (sessionId, callback) ->
     db.collection("session").remove _id: sessionId, callback
 
-  getSequences: (callback) ->
-    db.collection("sequence").find().toArray callback
+  getSequences: (callback) -> db.collection("sequence").find().toArray callback
+
+  getSessions: (callback) -> db.collection("session").find().toArray callback
 
   getSnapshot: (id, callback) -> db.findById "snapshot", id, callback
 

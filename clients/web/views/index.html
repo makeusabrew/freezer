@@ -1,7 +1,55 @@
 {% extends "layout.html" %}
 {% block title %}Welcome{% endblock %}
 {% block content %}
-    {% for sequence in sequences %}
-        <p><a href="/sequence/{{sequence._id}}">{{ sequence.url }}</a></p>
-    {% endfor %}
+    <h2>URL sequences</h2>
+    <p>The following URLs all have snapshot data available.</p>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>URL</th>
+                <th>Snapshots</th>
+                <th>Active?</th>
+                <th>Options</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sequence in sequences %}
+                <tr>
+                    <td><a href="/sequence/{{sequence._id}}">{{ sequence.url }}</a></td>
+                    <td>{{ sequence._snapshots }}</td>
+                    <td>{% if sequence._active %}Yes{% else %}No{% endif %}</td>
+                    <td>
+                        <a href="#" class="btn btn-warning">New Session</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Active sessions</h2>
+
+    <p>The following sessions are all currently active, meaning snapshot data
+    is being exposed by the freezer.</p>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Original URL</th>
+                <th>Available as</th>
+                <th>Current snapshot</th>
+                <th>Started</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for session in sessions %}
+                <tr>
+                    <td>{{ session._sequence.url }}</td>
+                    <td>http://localhost:9999{{ session.path }}</td>
+                    <td><a href="/sequence/{{ session.sequenceId }}/snapshot/{{ session.snapshotId }}">{{ session.snapshotId }}</a></td>
+                    <td>{{ session.created }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
