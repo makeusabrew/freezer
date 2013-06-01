@@ -39,7 +39,10 @@ allow automated testing via external scripts.
 
 ## Usage
 
-First of all, start up the freezer:
+First of all, clone the repository and then run ```npm install``` in the root
+of the project.
+
+Next, start up the freezer:
 
 ```coffee ./server/run.coffee```
 

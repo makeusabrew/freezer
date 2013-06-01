@@ -24,7 +24,7 @@ Freezer.start ->
     path: url.path  # can be set to whatever we like per session
     mode: "manual"
 
-  Freezer.startSession options, (err, session, sequence) ->
+  Freezer.startSession options, (err, session) ->
     throw err if err
 
     Prompt.log "registered new session #{session._id}"

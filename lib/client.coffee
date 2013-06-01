@@ -93,8 +93,8 @@ Freezer =
       {_id: sessionId},
       {_id: 1},
       {$set: snapshotId: snapshotId},
-      {},
-      (err, session) -> callback err
+      {new: true},
+      callback
     )
 
   deleteSession: (sessionId, callback) ->
