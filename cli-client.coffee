@@ -17,12 +17,17 @@ Prompt.start()
 
 Freezer.start ->
 
-  Freezer.getSequenceByUrl url.href, (err, sequence) ->
+  options =
+    url: url.href
+    path: url.path  # can be set to whatever we like per session
+    mode: "manual"
+
+  Freezer.startSession options, (err, session, sequence) ->
     throw err if err
 
-    throw "Cannot find sequence for URL #{url.href}" if not sequence
+    console.log "registered new session #{session._id}"
 
-    start sequence
+    start session.sequence
 
 start = (sequence) ->
 

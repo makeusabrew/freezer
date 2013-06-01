@@ -8,13 +8,17 @@ Freezer.start ->
   console.log "Snapshot server ready..."
 
 onRequest = (req, res) ->
-  Freezer.getSession req, (err, session) ->
-    return res.end "no session" if err
+  return res.end '' if req.url is "/favicon.ico"
 
-    Freezer.getCurrentSnapshot session, (err, snapshot) ->
+  Freezer.getSession req.url, (err, session) ->
+    return res.end "no active session for URL" if err or not session
+
+    console.log "#{req.url} matches session for sequence #{session.sequenceId}"
+
+    Freezer.getCurrentSnapshot session, req, (err, snapshot) ->
       res.setHeader "Access-Control-Allow-Origin", "*"
       res.setHeader "Content-Type", "application/json"
 
       res.end snapshot.raw
 
-      console.log "served snapshot #{snapshot._index}) #{snapshot._date}"
+      console.log "served snapshot #{snapshot._id}: #{snapshot.timestamp}"
