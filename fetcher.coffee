@@ -4,48 +4,31 @@ crypto  = require "crypto"
 
 # local deps
 db = require "./lib/db"
+Freezer = require "./lib/freezer"
 
 throw "Please supply a URL to fetch and a fetch interval in milliseconds" if process.argv.length isnt 4
 
 [url, interval] = process.argv[2..]
 
-# boot
 db.connect ->
+  Freezer.getSequenceByUrl url, (err, sequence) ->
+    throw err if err
 
-    db.collection("sequence").findOne {url: url}, (err, object) ->
-        throw err if err
+    return fetchLastHash sequence if sequence
 
-        return fetchLastHash object if object
+    console.log "creating new sequence for #{url}"
 
-        createSequence (object) -> fetchLastHash object
-
-createSequence = (callback) ->
-    console.log "creating new sequence object for #{url}"
-
-    object =
-        url: url
-        created: new Date
-
-    db.collection("sequence").insert object, (err, objects) ->
-        throw err if err
-
-        object = objects[0]
-
-        console.log "inserted new sequence #{object._id}"
-        callback object
+    Freezer.createSequenceForUrl url, (err, sequence) ->
+      console.log "inserted new sequence #{sequence._id}"
+      fetchLastHash sequence
 
 fetchLastHash = (sequence) ->
-    cursor = db.collection("snapshot").find({sequenceId: sequence._id})
+  Freezer.getLastSnapshot sequence._id, (err, snapshot) ->
+    throw err if err
 
-    cursor.sort _id: -1
-    cursor.limit 1
+    hash = if snapshot then snapshot.hash else null
 
-    cursor.toArray (err, docs) ->
-        throw err if err
-
-        hash = if docs.length then docs[0].hash else null
-
-        startSequence sequence, interval, hash
+    startSequence sequence, interval, hash
 
 startSequence = (sequence, interval, hash) ->
     console.log "starting sequence #{sequence._id}, URL #{sequence.url}, interval #{interval}, start hash #{hash}\n"
@@ -74,19 +57,17 @@ startSequence = (sequence, interval, hash) ->
             writeSnapshot sequence, body, data, thisHash
 
 writeSnapshot = (sequence, raw, data, hash) ->
-    object =
-        sequenceId: sequence._id
-        timestamp: Date.now()
-        hash: hash
-        data: data
-        raw: raw
+  object =
+    sequenceId: sequence._id
+    timestamp: Date.now()
+    hash: hash
+    data: data
+    raw: raw
 
-    db.collection("snapshot").insert object, (err, docs) ->
-        throw err if err
+  Freezer.createSnapshot object, (err, snapshot) ->
+      throw err if err
 
-        snapshot = docs[0]
-
-        console.log "wrote snapshot #{snapshot._id}"
+      console.log "wrote snapshot #{snapshot._id}"
 
 parseJSON = (data) ->
     try

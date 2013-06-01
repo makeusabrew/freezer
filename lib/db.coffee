@@ -6,19 +6,23 @@ host   = "localhost"
 port   = 27017
 dbname = "freezer_test"
 
+db = null
+
 exports =
-    db: {}
-    connect: (callback) ->
-        MongoClient.connect "mongodb://#{host}:#{port}/#{dbname}", (err, db) ->
-            throw err if err
+  connect: (callback) ->
+    callback() if db
 
-            exports.db = db
-            callback()
+    MongoClient.connect "mongodb://#{host}:#{port}/#{dbname}", (err, _db) ->
+      throw err if err
 
-    collection: (name) -> exports.db.collection name
+      db = _db
 
-    findById: (name, id, callback) -> @collection(name).findOne _id: @toObjectId(id), callback
+      callback()
 
-    toObjectId: (id) -> new ObjectID id
+  collection: (name) -> db.collection name
+
+  findById: (name, id, callback) -> @collection(name).findOne _id: @toObjectId(id), callback
+
+  toObjectId: (id) -> new ObjectID id
 
 module.exports = exports
