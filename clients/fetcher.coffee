@@ -2,8 +2,8 @@
 request = require "request"
 crypto  = require "crypto"
 
-# local deps
-Freezer = require "./lib/freezer"
+# app deps
+Freezer = require "../lib/client"
 
 throw "Please supply a URL to fetch and a fetch interval in milliseconds" if process.argv.length isnt 4
 

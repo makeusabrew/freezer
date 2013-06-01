@@ -1,11 +1,11 @@
 http  = require "http"
-Freezer = require "./lib/freezer"
+Freezer = require "../lib/client"
 
 Freezer.start ->
   server = http.createServer onRequest
 
   server.listen 9999
-  console.log "Snapshot server ready..."
+  console.log "Server ready..."
 
 onRequest = (req, res) ->
   return res.end '' if req.url is "/favicon.ico"

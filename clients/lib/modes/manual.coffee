@@ -3,7 +3,7 @@
 # what snapshot to serve when
 ###
 Base = require "./base"
-Freezer = require "../freezer"
+Freezer = require "../../../lib/client"
 
 snapshotIndex = 0
 snapshotCache = []

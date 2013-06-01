@@ -3,10 +3,12 @@ child_process = require "child_process"
 urlParse      = require("url").parse
 
 # local deps
-Mode    = require "../lib/mode"
+Mode    = require "./lib/mode"
+
+# app deps
 Prompt  = require "../lib/prompt"
 Utils   = require "../lib/utils"
-Freezer = require "../lib/freezer"
+Freezer = require "../lib/client"
 
 throw "Please supply a URL to retrieve snapshots for" if process.argv.length isnt 3
 
