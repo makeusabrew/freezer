@@ -116,4 +116,6 @@ Freezer =
 
   getSequence: (id, callback) -> db.findById "sequence", id, callback
 
+  toObjectId: (id) -> db.toObjectId id
+
 module.exports = Freezer

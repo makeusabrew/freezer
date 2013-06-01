@@ -2,9 +2,7 @@ restify = require "restify"
 
 Client = require "../lib/client"
 
-db = require  "../lib/db"
-
-_id = (id) -> db.toObjectId id
+_id = (id) -> Client.toObjectId id
 
 loadRoutes = (server) ->
   server.get "/sequences", (req, res) ->
