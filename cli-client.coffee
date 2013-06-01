@@ -1,38 +1,37 @@
-# builtin/npm deps
 fs            = require "fs"
 child_process = require "child_process"
+urlParse      = require("url").parse
 
 # local deps
-db     = require "./lib/db"
-Mode   = require "./lib/mode"
-Prompt = require "./lib/prompt"
-Utils  = require "./lib/utils"
+Mode    = require "./lib/mode"
+Prompt  = require "./lib/prompt"
+Utils   = require "./lib/utils"
+Freezer = require "./lib/freezer"
 
 throw "Please supply a URL to retrieve snapshots for" if process.argv.length isnt 3
 
-url = require("url").parse process.argv[2]
+url = urlParse process.argv[2]
 currentMode = Mode.factory "manual"
 
-# boot
 Prompt.start()
-db.connect ->
 
-    db.collection("sequence").findOne {url: url.href}, (err, sequence) ->
-        throw err if err
+Freezer.start ->
 
-        throw "Cannot find sequence for URL #{url.href}" if not sequence
+  Freezer.getSequenceByUrl url.href, (err, sequence) ->
+    throw err if err
 
-        start sequence
+    throw "Cannot find sequence for URL #{url.href}" if not sequence
+
+    start sequence
 
 start = (sequence) ->
 
-    Prompt.on "input", onInput
+  Prompt.on "input", onInput
 
-    currentMode.setSequence sequence
+  currentMode.setSequence sequence
 
-    currentMode.loadSnapshots ->
-        server.listen 9999
-        Prompt.write "Serving snapshots for sequence #{sequence._id}, URL: #{sequence.url}"
+  currentMode.loadSnapshots ->
+    Prompt.write "Serving snapshots for sequence #{sequence._id}, URL: #{sequence.url}"
 
 onInput = (data) ->
     help = "Unrecognised command '#{data}'\n - try 'list', '(n)ext', '(b)ack', 'current', 'reload', 'list', 'load [n]', 'diff [n] [m]'"
@@ -59,7 +58,7 @@ displaySnapshot = (snapshot) -> Prompt.write "Current snapshot: #{snapshot._inde
 
 displayAll = (snapshots) ->
     for snapshot,i in snapshots
-        str = "#{i+1}) #{snapshot._date}"
+        str = "#{snapshot._index}) #{snapshot._date}"
         str += " [✓]" if i is currentMode.getSnapshotIndex()
         Prompt.write str
 

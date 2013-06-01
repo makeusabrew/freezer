@@ -1,7 +1,7 @@
 http  = require "http"
-Freezer = {}
+Freezer = require "./lib/freezer"
 
-start = ->
+Freezer.start ->
   server = http.createServer onRequest
 
   server.listen 9999
@@ -18,5 +18,3 @@ onRequest = (req, res) ->
       res.end snapshot.raw
 
       console.log "served snapshot #{snapshot._index}) #{snapshot._date}"
-
-start()

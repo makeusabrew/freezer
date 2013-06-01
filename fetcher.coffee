@@ -3,14 +3,13 @@ request = require "request"
 crypto  = require "crypto"
 
 # local deps
-db = require "./lib/db"
 Freezer = require "./lib/freezer"
 
 throw "Please supply a URL to fetch and a fetch interval in milliseconds" if process.argv.length isnt 4
 
 [url, interval] = process.argv[2..]
 
-db.connect ->
+Freezer.start ->
   Freezer.getSequenceByUrl url, (err, sequence) ->
     throw err if err
 

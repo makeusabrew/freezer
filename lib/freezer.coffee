@@ -1,6 +1,8 @@
 db = require "./db"
 
 Freezer =
+  start: (callback) -> db.connect callback
+
   getSession: (request, callback) ->
     callback "not implemented", null
   
@@ -40,5 +42,10 @@ Freezer =
       return callback err, null if err
 
       callback null, docs[0]
+
+  getSnapshotsForSequence: (sequenceId, callback) ->
+    cursor = db.collection("snapshot").find sequenceId: sequenceId
+    cursor.sort timestamp: 1
+    cursor.toArray callback
 
 module.exports = Freezer
