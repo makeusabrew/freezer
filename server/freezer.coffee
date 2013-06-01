@@ -7,11 +7,17 @@ onRequest = (req, res) ->
   return res.end '' if req.url is "/favicon.ico"
 
   Freezer.getSession req.url, (err, session) ->
+    console.log "ERROR", err if err
+
     return res.end "no active session for URL" if err or not session
 
     console.log "#{req.url} matches session for sequence #{session.sequenceId}"
 
     Freezer.getCurrentSnapshot session, req, (err, snapshot) ->
+      console.log "ERROR", err if err
+
+      return res.end "could not fetch snapshot" if err or not snapshot
+
       res.setHeader "Access-Control-Allow-Origin", "*"
       res.setHeader "Content-Type", "application/json"
 
