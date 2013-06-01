@@ -102,3 +102,5 @@ Summaries
  reusable stuff so that would need extracting so other clients can write snapshots.
  Can't help but think in an ideal, far away version everything would just
  go via the API, albeit not over HTTP unless necessary.
+
+ Could 'sessions' be called 'replays' instead? E.g. 'start a new replay' rather than session?

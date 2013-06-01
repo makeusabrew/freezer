@@ -1,5 +1,4 @@
 # builtin/npm deps
-http          = require "http"
 fs            = require "fs"
 child_process = require "child_process"
 
@@ -26,7 +25,6 @@ db.connect ->
         start sequence
 
 start = (sequence) ->
-    server = http.createServer onRequest
 
     Prompt.on "input", onInput
 
@@ -35,18 +33,6 @@ start = (sequence) ->
     currentMode.loadSnapshots ->
         server.listen 9999
         Prompt.write "Serving snapshots for sequence #{sequence._id}, URL: #{sequence.url}"
-
-onRequest = (req, res) ->
-    res.setHeader "Access-Control-Allow-Origin", "*"
-
-    return res.end "invalid path" if req.url isnt url.path
-
-    snapshot = currentMode.getCurrentSnapshot req
-
-    res.setHeader "Content-Type", "application/json"
-    res.end snapshot.raw
-
-    Prompt.write "[web] served snapshot #{snapshot._index}) #{snapshot._date}"
 
 onInput = (data) ->
     help = "Unrecognised command '#{data}'\n - try 'list', '(n)ext', '(b)ack', 'current', 'reload', 'list', 'load [n]', 'diff [n] [m]'"
