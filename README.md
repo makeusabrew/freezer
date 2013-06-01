@@ -74,12 +74,15 @@ Which will output something like:
 
     Managing snapshots for sequence 51aa2a9b6544e61a1a000001
     URL: http://api.bbcnews.appengine.co.uk/stories/world
-    Snapshot server responding to requests on http://localhost:9999/stories/world
+    Freezer server responding to requests on http://localhost:9999/stories/world
 
-This tells the freezer process that the CLI app is responsible for which snapshot
-of the BBC's stories to serve until the CLI app exits. The URL these snapshots
-are exposed on maps to the path of the original (e.g. /stories/world in this case) -
-this allows transparent swapping of host names rather than entire paths when testing.
+This tells the freezer process that the CLI app is currently responsible for which
+snapshot of ```http://api.bbcnews.appengine.co.uk/stories/world``` the freezer
+will serve until the CLI app exits. The URL these snapshots
+are served on maps to the path of the original (e.g. ```/stories/world``` in
+this case) - this allows transparent swapping of host names rather than entire
+paths when testing (e.g. switching from a live endpoint to a snapshotted one
+is usually a one-line config change).
 
 Now when hitting ```http://localhost:9999/stories/world``` you'll be served
 the first snapshot captured for that URL. As the CLI app is responsible for

@@ -37,7 +37,7 @@ start = (session) ->
 
   currentMode.loadSnapshots ->
     Prompt.log "Managing snapshots for sequence #{session.sequence._id}, URL: #{session.sequence.url}"
-    Prompt.log "Snapshot server responding to requests on http://localhost:9999#{session.path}"
+    Prompt.log "Freezer server responding to requests on http://localhost:9999#{session.path}"
 
     currentMode.loadAbsolute 0, (err) ->
       throw err if err
