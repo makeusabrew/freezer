@@ -24,9 +24,9 @@ loadRoutes = (server) ->
     options =
       url: req.params.url
       path: req.params.path
-      mode: "manual"
+      mode: "manual" #@TODO from params...
 
-    Freezer.startSession options, (err, session) ->
+    Freezer.createSession options, (err, session) ->
       return error res, err if err
 
       return res.send session
@@ -46,6 +46,7 @@ loadRoutes = (server) ->
       res.send deleted: deleted
 
   server.get "/snapshots", (req, res) ->
+    # @TODO: this only serves snapshots for a given sequenceId
     Freezer.getSnapshotsForSequence _id(req.params.sequenceId), (err, snapshots) ->
       return error res, err if err
 

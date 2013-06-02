@@ -24,3 +24,19 @@ module.exports =
   createSnapshot: (params, callback) ->
     client.post "/snapshots", params, (err, req, res, obj) ->
       callback null, obj
+
+  createSession: (params, callback) ->
+    client.post "/sessions", params, (err, req, res, obj) ->
+      callback null, obj
+
+  getSnapshotsForSequence: (sequenceId, callback) ->
+    client.get "/snapshots?sequenceId=#{sequenceId}", (err, req, res, obj) ->
+      callback null, obj
+
+  setSessionSnapshot: (sessionId, snapshotId, callback) ->
+    client.put "/sessions/#{sessionId}", {snapshotId: snapshotId}, (err, req, res, obj) ->
+      callback null
+
+  deleteSession: (sessionId, callback) ->
+    client.del "/sessions/#{sessionId}", (err, req, res, obj) ->
+      callback null, obj

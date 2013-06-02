@@ -71,7 +71,7 @@ Freezer =
   countSnapshotsForSequence: (sequenceId, callback) ->
     db.collection("snapshot").count sequenceId: sequenceId, callback
 
-  startSession: (options, callback) ->
+  createSession: (options, callback) ->
     @getSequenceByUrl options.url, (err, sequence) =>
       return callback err, null if err
 
