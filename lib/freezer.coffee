@@ -107,7 +107,7 @@ Freezer =
 
   getSequences: (params, callback) -> db.collection("sequence").find(params).toArray callback
 
-  getSessions: (callback) -> db.collection("session").find().toArray callback
+  getSessions: (params, callback) -> db.collection("session").find(params).toArray callback
 
   getSnapshot: (id, callback) -> db.findById "snapshot", id, callback
 

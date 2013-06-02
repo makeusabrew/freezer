@@ -1,15 +1,15 @@
 Controller = require "../../../lib/controller"
-Freezer    = require "../../../lib/client"
+Client     = require "../../../lib/client"
 
 #@TODO these methods are really crude and step on each other's toes a bit
 #need reworking to be as efficient and neat as possible
 getSessions = (callback) ->
-  Freezer.getSessions (err, sessions) =>
+  Client.getSessions (err, sessions) =>
     return callback [] if sessions.length is 0
     counts = 0
     for session in sessions
       do (session) =>
-        Freezer.getSequence session.sequenceId, (err, sequence) =>
+        Client.getSequence session.sequenceId, (err, sequence) =>
           counts += 1
 
           session._sequence = sequence
@@ -17,12 +17,12 @@ getSessions = (callback) ->
           callback sessions if counts is sessions.length
 
 getSequences = (sessions, callback) ->
-  Freezer.getSequences (err, sequences) =>
+  Client.getSequences (err, sequences) =>
     return callback [] if sequences.length is 0
     counts = 0
     for sequence in sequences
       do (sequence) =>
-        Freezer.countSnapshotsForSequence sequence._id, (err, count) =>
+        Client.countSnapshotsForSequence sequence._id, (err, count) =>
           counts += 1
 
           sequence._snapshots = count

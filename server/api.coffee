@@ -9,6 +9,11 @@ Freezer = require "../lib/freezer"
 _id = (id) -> Freezer.toObjectId id
 
 loadRoutes = (server) ->
+  server.get "/sequences/:id", (req, res) ->
+    Freezer.getSequence req.params.id, (err, sequence) ->
+      return error res, err if err
+      res.send sequence
+
   server.get "/sequences", (req, res) ->
     Freezer.getSequences req.params, (err, sequences) ->
       return error res, err if err
@@ -19,6 +24,11 @@ loadRoutes = (server) ->
     Freezer.createSequenceForUrl req.params.url, (err, sequence) ->
       return error res, err if err
       res.send sequence
+
+  server.get "/sessions", (req, res) ->
+    Freezer.getSessions req.params, (err, sessions) ->
+      return error res, err if err
+      res.send sessions
 
   server.post "/sessions", (req, res) ->
     options =
@@ -52,8 +62,15 @@ loadRoutes = (server) ->
 
       return res.send snapshots
 
+  # @see https://blog.apigee.com/detail/restful_api_design_what_about_counts
+  server.get "/snapshots/count", (req, res) ->
+    Freezer.countSnapshotsForSequence _id(req.params.sequenceId), (err, count) ->
+      return error res, err if err
+
+      return res.send count: count
+
   # snapshot collections get massive, so we *have* to expose a better query
-  server.get "/snapshots/:index", (req, res) ->
+  server.get "/snapshots/:index", (req, res, next) ->
     throw "not implemented" unless req.params.index is "last"
 
     #@TODO only 'last' is implemented, need others as well as numeric
