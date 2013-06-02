@@ -10,9 +10,10 @@ Prompt  = require "../lib/prompt"
 Utils   = require "../lib/utils"
 Freezer = require "../lib/client"
 
-throw "Please supply a URL to retrieve snapshots for" if process.argv.length isnt 3
+throw "Please supply a URL to retrieve snapshots for" if process.argv.length < 3
 
-url = urlParse process.argv[2]
+url         = urlParse process.argv[2]
+path        = process.argv[3] || url.path
 currentMode = Mode.factory "manual"
 
 Prompt.start()
@@ -21,7 +22,7 @@ Freezer.start ->
 
   options =
     url: url.href
-    path: url.path  # can be set to whatever we like per session
+    path: path
     mode: "manual"
 
   Freezer.startSession options, (err, session) ->
