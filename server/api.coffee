@@ -1,5 +1,14 @@
 restify = require "restify"
 
+# @TODO this isn't right; the API process uses the same 'client' as
+# all the, err, clients, to actually write/fetch data. What if we wanted
+# the client to actually go via HTTP and call this API? We'd end up going
+# round in circles (since this calls that same client).
+#
+# Can't seem to tease out the correct patterns here; is it simply that the
+# client should use this REST API, and this process should be the only one
+# which cares about DB connections etc?
+
 Client = require "../lib/client"
 
 _id = (id) -> Client.toObjectId id
