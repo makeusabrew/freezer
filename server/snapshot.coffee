@@ -1,7 +1,7 @@
 http  = require "http"
 
 # app deps
-Freezer = require "../lib/client"
+Freezer = require "../lib/freezer"
 
 onRequest = (req, res) ->
   return res.end '' if req.url is "/favicon.ico"

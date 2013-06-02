@@ -1,26 +1,24 @@
 restify = require "restify"
 
-# @TODO this isn't right; the API process uses the same 'client' as
-# all the, err, clients, to actually write/fetch data. What if we wanted
-# the client to actually go via HTTP and call this API? We'd end up going
-# round in circles (since this calls that same client).
-#
-# Can't seem to tease out the correct patterns here; is it simply that the
-# client should use this REST API, and this process should be the only one
-# which cares about DB connections etc?
+#@TODO wrap all the callbacks here in named functions exposed by another
+#object (e.g. Api.getSequences etc) - will be easier to tease apart the
+#layers during testing
 
-Client = require "../lib/client"
+Freezer = require "../lib/freezer"
 
-_id = (id) -> Client.toObjectId id
+_id = (id) -> Freezer.toObjectId id
 
 loadRoutes = (server) ->
   server.get "/sequences", (req, res) ->
-    Client.getSequences (err, sequences) ->
+    Freezer.getSequences req.params, (err, sequences) ->
+      return error res, err if err
       res.send sequences
 
+  #@TODO this only takes a URL as input...
   server.post "/sequences", (req, res) ->
-    Client.createSequenceForUrl req.params.url (err, sequences) ->
-      res.send sequences
+    Freezer.createSequenceForUrl req.params.url, (err, sequence) ->
+      return error res, err if err
+      res.send sequence
 
   server.post "/sessions", (req, res) ->
     options =
@@ -28,7 +26,7 @@ loadRoutes = (server) ->
       path: req.params.path
       mode: "manual"
 
-    Client.startSession options, (err, session) ->
+    Freezer.startSession options, (err, session) ->
       return error res, err if err
 
       return res.send session
@@ -36,22 +34,41 @@ loadRoutes = (server) ->
   server.put "/sessions/:id", (req, res) ->
 
     #@TODO: obviously this method is completely mismatched to the input...
-    Client.setSessionSnapshot _id(req.params.id), _id(req.params.snapshotId), (err, session) ->
+    Freezer.setSessionSnapshot _id(req.params.id), _id(req.params.snapshotId), (err, session) ->
       return error res, err if err
 
       return res.send 200
 
   server.del "/sessions/:id", (req, res) ->
-    Client.deleteSession _id(req.params.id), (err, deleted) ->
+    Freezer.deleteSession _id(req.params.id), (err, deleted) ->
       return error res, err if err
 
       res.send deleted: deleted
 
   server.get "/snapshots", (req, res) ->
-    Client.getSnapshotsForSequence _id(req.params.sequenceId), (err, snapshots) ->
+    Freezer.getSnapshotsForSequence _id(req.params.sequenceId), (err, snapshots) ->
       return error res, err if err
 
       return res.send snapshots
+
+  # snapshot collections get massive, so we *have* to expose a better query
+  server.get "/snapshots/:index", (req, res) ->
+    throw "not implemented" unless req.params.index is "last"
+
+    #@TODO only 'last' is implemented, need others as well as numeric
+    #this will need to cooperate with /:id when added (/:id first I guess)
+    Freezer.getLastSnapshot _id(req.params.sequenceId), (err, snapshot) ->
+      return error res, err if err
+
+      return res.send snapshot
+
+  server.post "/snapshots", (req, res) ->
+    #@TODO sanitize params
+
+    Freezer.createSnapshot req.params, (err, snapshot) ->
+      return error res, err if err
+
+      return res.send snapshot
 
 error = (res, err) -> res.send new restify.InternalError(err)
 

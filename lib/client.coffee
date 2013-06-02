@@ -1,121 +1,26 @@
-###
-# Think of this as the main API entry point into the system, e.g.
-# effectively all of these methods will one day be mapped to a remote
-# API endpoint (be it RESTful or whatever)
-#
-# As such it's quite large at the moment; feels like we at least need some
-# neater mappers to avoid the constant db.collection and result manipulation
-# stuff
-###
+restify = require "restify"
 
-# @TODO: DRY this file up
-# @TODO: comment, or eradicate, its idiosyncracies
-# @TODO: make its methods a bit more predictable and idiomatic; even if that
-# means more composition
+#@TODO trap API errors and convert them to something meaningful
 
-db = require "./db"
+#@TODO obviously need to take the API endpoint from config, not hard-coded!
+client = restify.createJsonClient url: "http://localhost:9898"
 
-getFirst = (cursor, callback) ->
-  cursor.toArray (err, docs) ->
-    return callback err, null if err
+getFirst = (result) -> if result[0]? then result[0] else null
 
-    callback null, if docs.length then docs[0] else null
-
-Freezer =
-  start: (callback) -> db.connect callback
-
-  getSession: (url, callback) ->
-    cursor = db.collection("session").find path: url
-    cursor.sort(created: -1).limit(1)
-
-    getFirst cursor, callback
-  
-  getCurrentSnapshot: (session, request, callback) ->
-    cursor = db.collection("snapshot").find _id: session.snapshotId
-
-    cursor.sort(_id: 1).limit(1)
-
-    getFirst cursor, callback
-
+module.exports =
   getSequenceByUrl: (url, callback) ->
-    db.collection("sequence").findOne url: url, (err, object) ->
-      callback err, object
+    client.get "/sequences?url=#{url}", (err, req, res, obj) ->
+
+      callback null, getFirst obj
 
   createSequenceForUrl: (url, callback) ->
-
-    object =
-      url: url
-      created: new Date
-
-    db.collection("sequence").insert object, (err, objects) ->
-      return callback err, null if err
-
-      callback null, objects[0]
+    client.post "/sequences", {url: url}, (err, req, res, obj) ->
+      callback null, obj
 
   getLastSnapshot: (sequenceId, callback) ->
-    cursor = db.collection("snapshot").find sequenceId: sequenceId
+    client.get "/snapshots/last?sequenceId=#{sequenceId}", (err, req, res, obj) ->
+      callback null, obj
 
-    cursor.sort _id: -1
-    cursor.limit 1
-
-    getFirst cursor, callback
-
-  createSnapshot: (object, callback) ->
-    db.collection("snapshot").insert object, (err, docs) ->
-      return callback err, null if err
-
-      callback null, docs[0]
-
-  getSnapshotsForSequence: (sequenceId, callback) ->
-    cursor = db.collection("snapshot").find sequenceId: sequenceId
-    cursor.sort timestamp: 1
-    cursor.toArray callback
-
-  countSnapshotsForSequence: (sequenceId, callback) ->
-    db.collection("snapshot").count sequenceId: sequenceId, callback
-
-  startSession: (options, callback) ->
-    @getSequenceByUrl options.url, (err, sequence) =>
-      return callback err, null if err
-
-      return callback "No sequence for url #{options.url}", null if not sequence
-
-      object =
-        sequenceId: sequence._id
-        path: options.path
-        mode: options.mode
-        snapshotId: null
-        created: new Date
-        updated: new Date
-
-      db.collection("session").insert object, (err, objects) ->
-        return callback err, null if err
-
-        session = objects[0]
-        session.sequence = sequence
-
-        callback null, session
-
-  setSessionSnapshot: (sessionId, snapshotId, callback) ->
-    db.collection("session").findAndModify(
-      {_id: sessionId},
-      {_id: 1},
-      {$set: snapshotId: snapshotId},
-      {new: true},
-      callback
-    )
-
-  deleteSession: (sessionId, callback) ->
-    db.collection("session").remove _id: sessionId, callback
-
-  getSequences: (callback) -> db.collection("sequence").find().toArray callback
-
-  getSessions: (callback) -> db.collection("session").find().toArray callback
-
-  getSnapshot: (id, callback) -> db.findById "snapshot", id, callback
-
-  getSequence: (id, callback) -> db.findById "sequence", id, callback
-
-  toObjectId: (id) -> db.toObjectId id
-
-module.exports = Freezer
+  createSnapshot: (params, callback) ->
+    client.post "/snapshots", params, (err, req, res, obj) ->
+      callback null, obj
