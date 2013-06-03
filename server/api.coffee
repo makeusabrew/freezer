@@ -12,6 +12,7 @@ loadRoutes = (server) ->
   server.get "/sequences/:id", (req, res) ->
     Freezer.getSequence req.params.id, (err, sequence) ->
       return error res, err if err
+      #@TODO restify borks here if the result is null, so need to think what to return
       res.send sequence
 
   server.get "/sequences", (req, res) ->
