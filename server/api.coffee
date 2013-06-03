@@ -62,8 +62,6 @@ loadRoutes = (server) ->
 
       res.send deleted: deleted
 
-  server.get "/snapshots/:id", getResource "Snapshot"
-
   server.get "/snapshots", (req, res) ->
     # @TODO: this only serves snapshots for a given sequenceId
     Freezer.getSnapshotsForSequence _id(req.params.sequenceId), (err, snapshots) ->
@@ -79,11 +77,11 @@ loadRoutes = (server) ->
       return res.send count: count
 
   # snapshot collections get massive, so we *have* to expose a better query
-  server.get "/snapshots/:index", (req, res, next) ->
-    throw "not implemented" unless req.params.index is "last"
+  # @FIXME next doesn't seem to actually work, so for now this is hard coded
+  # otherwise /snapshots/:id will never match
+  server.get "/snapshots/last", (req, res, next) ->
+    #return next() unless req.params.index is "last"
 
-    #@TODO only 'last' is implemented, need others as well as numeric
-    #this will need to cooperate with /:id when added (/:id first I guess)
     Freezer.getLastSnapshot _id(req.params.sequenceId), (err, snapshot) ->
       return error res, err if err
 
@@ -92,6 +90,8 @@ loadRoutes = (server) ->
       return notFound res if not snapshot
 
       return res.send snapshot
+
+  server.get "/snapshots/:id", getResource "Snapshot"
 
   server.post "/snapshots", (req, res) ->
     #@TODO sanitize params
@@ -112,6 +112,7 @@ module.exports =
       version:" 0.0.1"
 
     server.pre restify.pre.userAgentConnection()
+    server.pre restify.pre.pause()
 
     server.use restify.queryParser()
     server.use restify.bodyParser()
@@ -123,6 +124,9 @@ module.exports =
 
     loadRoutes server
 
+    server.on "after", (req, res, route, err) ->
+      console.log "[API] after", route
+
     server.listen port
 
-    console.log "API server listening on port #{port}"
+    console.log "[API] server listening on port #{port}"
