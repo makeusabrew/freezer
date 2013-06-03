@@ -75,6 +75,9 @@ Freezer =
     @getSequenceByUrl options.url, (err, sequence) =>
       return callback err, null if err
 
+      # @TODO although it works with the outer API layer, throwing an error
+      # for a null result here isn't consistent with what we do elsewhere
+      # (which is just callback with a null object)
       return callback "No sequence for url #{options.url}", null if not sequence
 
       object =

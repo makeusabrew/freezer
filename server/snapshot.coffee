@@ -23,7 +23,7 @@ onRequest = (req, res) ->
 
       res.end snapshot.raw
 
-      console.log "served snapshot #{snapshot._id}: #{snapshot.timestamp}"
+      console.log "[FREEZER] served #{snapshot._id}: #{snapshot.timestamp}"
 
 Server =
   start: (port) ->

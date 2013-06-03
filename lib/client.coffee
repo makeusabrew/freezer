@@ -27,6 +27,9 @@ module.exports =
 
   getLastSnapshot: (sequenceId, callback) ->
     client.get "/snapshots/last?sequenceId=#{sequenceId}", (err, req, res, obj) ->
+      # @TODO DRY, neat and predictable way of handling
+      return callback null, null if err and err.statusCode is 404
+
       callback err, obj
 
   createSnapshot: (params, callback) ->

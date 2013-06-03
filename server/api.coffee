@@ -79,17 +79,23 @@ loadRoutes = (server) ->
     Freezer.getLastSnapshot _id(req.params.sequenceId), (err, snapshot) ->
       return error res, err if err
 
+      # @TODO is this really the right way of handling a non existent
+      # single resource? If so we need to DRY it up a bit
+      return notFound res if not snapshot
+
       return res.send snapshot
 
   server.post "/snapshots", (req, res) ->
     #@TODO sanitize params
+    req.params.sequenceId = _id(req.params.sequenceId)
 
     Freezer.createSnapshot req.params, (err, snapshot) ->
       return error res, err if err
 
       return res.send snapshot
 
-error = (res, err) -> res.send new restify.InternalError(err)
+error    = (res, err) -> res.send new restify.InternalError(err)
+notFound = (res, msg="Resource not found") -> res.send new restify.ResourceNotFoundError msg
 
 module.exports =
   start: (port) ->
