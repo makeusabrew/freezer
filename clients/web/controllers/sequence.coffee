@@ -1,14 +1,14 @@
 Controller = require "../../../lib/controller"
-Freezer    = require "../../../lib/client"
+Client     = require "../../../lib/client"
 Utils      = require "../../../lib/utils"
 
-_id = (id) -> Freezer.toObjectId id
-
 findSequenceAndSnapshots = (id, callback) ->
-  Freezer.getSequence _id(id), (err, doc) ->
+  Client.getSequence id, (err, doc) ->
     throw err if err
 
-    Freezer.getSnapshotsForSequence doc._id, (err, docs) ->
+    return callback null, null if not doc
+
+    Client.getSnapshotsForSequence doc._id.toString(), (err, docs) ->
       throw err if err
 
       callback doc, docs
@@ -22,7 +22,7 @@ class SequenceController extends Controller
         snapshots: snapshots
 
   viewSnapshot: (req, res) ->
-    Freezer.getSnapshot _id(req.params.snapshotId), (err, doc) =>
+    Client.getSnapshot req.params.snapshotId, (err, doc) =>
       res.send @render "snapshot",
         page: "snapshot"
         snapshot: doc

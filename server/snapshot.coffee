@@ -1,7 +1,7 @@
 http  = require "http"
 
 # app deps
-Freezer = require "../lib/client"
+Freezer = require "../lib/freezer"
 
 onRequest = (req, res) ->
   return res.end '' if req.url is "/favicon.ico"
@@ -23,7 +23,7 @@ onRequest = (req, res) ->
 
       res.end snapshot.raw
 
-      console.log "served snapshot #{snapshot._id}: #{snapshot.timestamp}"
+      console.log "[FREEZER] served #{snapshot._id}: #{snapshot.timestamp}"
 
 Server =
   start: (port) ->

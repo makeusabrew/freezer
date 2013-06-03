@@ -3,26 +3,25 @@ request = require "request"
 crypto  = require "crypto"
 
 # app deps
-Freezer = require "../lib/client"
+Client = require "../lib/client"
 
 throw "Please supply a URL to fetch and a fetch interval in milliseconds" if process.argv.length isnt 4
 
 [url, interval] = process.argv[2..]
 
-Freezer.start ->
-  Freezer.getSequenceByUrl url, (err, sequence) ->
-    throw err if err
+Client.getSequenceByUrl url, (err, sequence) ->
+  throw err if err
 
-    return fetchLastHash sequence if sequence
+  return fetchLastHash sequence if sequence
 
-    console.log "creating new sequence for #{url}"
+  console.log "creating new sequence for #{url}"
 
-    Freezer.createSequenceForUrl url, (err, sequence) ->
-      console.log "inserted new sequence #{sequence._id}"
-      fetchLastHash sequence
+  Client.createSequenceForUrl url, (err, sequence) ->
+    console.log "inserted new sequence #{sequence._id}"
+    fetchLastHash sequence
 
 fetchLastHash = (sequence) ->
-  Freezer.getLastSnapshot sequence._id, (err, snapshot) ->
+  Client.getLastSnapshot sequence._id, (err, snapshot) ->
     throw err if err
 
     hash = if snapshot then snapshot.hash else null
@@ -63,7 +62,7 @@ writeSnapshot = (sequence, raw, data, hash) ->
     data: data
     raw: raw
 
-  Freezer.createSnapshot object, (err, snapshot) ->
+  Client.createSnapshot object, (err, snapshot) ->
       throw err if err
 
       console.log "wrote snapshot #{snapshot._id}"

@@ -2,9 +2,6 @@ express   = require "express"
 swig      = require "swig"
 app       = express()
 
-# shared lib deps
-Freezer = require "../../lib/client"
-
 # app config
 swig.init
   root: "#{__dirname}/views"
@@ -21,7 +18,5 @@ app.configure ->
 # app includes
 require("./routes")(app)
 
-# boot
-Freezer.start ->
-  app.listen 8888
-  console.log "server listening on port 8888"
+app.listen 8888
+console.log "server listening on port 8888"

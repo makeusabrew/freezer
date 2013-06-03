@@ -3,7 +3,7 @@
 # what snapshot to serve when
 ###
 Base = require "./base"
-Freezer = require "../../../lib/client"
+Client = require "../../../lib/client"
 
 snapshotIndex = 0
 snapshotCache = []
@@ -27,14 +27,14 @@ class Manual extends Base
       snapshot = snapshotCache[index]
       callback "invalid snapshot index #{index}" if not snapshot
 
-      Freezer.setSessionSnapshot @session._id, snapshot._id, (err) ->
+      Client.setSessionSnapshot @session._id, snapshot._id, (err) ->
         return callback err if err
 
         snapshotIndex = index
         callback()
 
     loadSnapshots: (callback) ->
-      Freezer.getSnapshotsForSequence @session.sequenceId, (err, docs) ->
+      Client.getSnapshotsForSequence @session.sequenceId, (err, docs) ->
         throw err if err
 
         snapshotCache = (augmentSnapshot s,i for s,i in docs)

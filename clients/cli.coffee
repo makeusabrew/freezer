@@ -3,12 +3,14 @@ child_process = require "child_process"
 urlParse      = require("url").parse
 
 # local deps
+#@TODO review the concept of 'Modes'... it's something thus far only
+#this app cares about, and it only implements 'manual' anyway...
 Mode    = require "./lib/mode"
 
 # app deps
 Prompt  = require "../lib/prompt"
 Utils   = require "../lib/utils"
-Freezer = require "../lib/client"
+Client  = require "../lib/client"
 
 throw "Please supply a URL to retrieve snapshots for" if process.argv.length < 3
 
@@ -16,39 +18,31 @@ url         = urlParse process.argv[2]
 path        = process.argv[3] || url.path
 currentMode = Mode.factory "manual"
 
-Prompt.start()
-
-Freezer.start ->
-
+start = ->
   options =
     url: url.href
     path: path
-    mode: "manual"
 
-  Freezer.startSession options, (err, session) ->
+  Client.createSession options, (err, session) ->
     throw err if err
 
     Prompt.log "registered new session #{session._id}"
 
-    start session
+    currentMode.setSession session
 
-start = (session) ->
+    currentMode.loadSnapshots ->
+      Prompt.log "Managing snapshots for sequence #{session.sequence._id}, URL: #{session.sequence.url}"
+      Prompt.log "Snapshot server responding to requests on http://localhost:9999#{session.path}"
 
-  currentMode.setSession session
+      currentMode.loadAbsolute 0, (err) ->
+        throw err if err
 
-  currentMode.loadSnapshots ->
-    Prompt.log "Managing snapshots for sequence #{session.sequence._id}, URL: #{session.sequence.url}"
-    Prompt.log "Freezer server responding to requests on http://localhost:9999#{session.path}"
+    Prompt.on "SIGINT", ->
+      Client.deleteSession session._id, (err) ->
+        throw err if err
 
-    currentMode.loadAbsolute 0, (err) ->
-      throw err if err
-
-  Prompt.on "SIGINT", ->
-    Freezer.deleteSession session._id, (err) ->
-      throw err if err
-
-      console.log "session terminated, exiting"
-      process.exit 0
+        console.log "session terminated, exiting"
+        process.exit 0
 
 Prompt.on "input", (data) ->
     help = "Unrecognised command '#{data}'\n - try 'list', '(n)ext', '(b)ack', 'current', 'reload', 'list', 'load [n]', 'diff [n] [m]'"
@@ -134,3 +128,6 @@ handleArgs = (data) ->
     return true
 
   return false
+
+Prompt.start()
+start()

@@ -1,5 +1,8 @@
 EventEmitter = require("events").EventEmitter
 
+# @TODO expose some sort of 'loading' mutable property
+# where no input is received
+
 prompt      = "=> "
 inPrompt    = "<= "
 currentLine = ""
