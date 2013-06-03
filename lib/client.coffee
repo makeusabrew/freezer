@@ -25,6 +25,10 @@ module.exports =
     client.post "/sequences", {url: url}, (err, req, res, obj) ->
       callback err, obj
 
+  getSnapshot: (id, callback) ->
+    client.get "/snapshots/#{id}", (err, req, res, obj) ->
+      callback err, obj
+
   getLastSnapshot: (sequenceId, callback) ->
     client.get "/snapshots/last?sequenceId=#{sequenceId}", (err, req, res, obj) ->
       # @TODO DRY, neat and predictable way of handling

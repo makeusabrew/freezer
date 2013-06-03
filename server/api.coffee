@@ -8,12 +8,18 @@ Freezer = require "../lib/freezer"
 
 _id = (id) -> Freezer.toObjectId id
 
-loadRoutes = (server) ->
-  server.get "/sequences/:id", (req, res) ->
-    Freezer.getSequence req.params.id, (err, sequence) ->
+getResource = (resource) ->
+  (req, res, next) ->
+    Freezer["get#{resource}"] _id(req.params.id), (err, resource) ->
       return error res, err if err
-      #@TODO restify borks here if the result is null, so need to think what to return
-      res.send sequence
+
+      # @TODO why can't we use next() here?
+      return notFound res if not resource
+
+      res.send resource
+
+loadRoutes = (server) ->
+  server.get "/sequences/:id", getResource "Sequence"
 
   server.get "/sequences", (req, res) ->
     Freezer.getSequences req.params, (err, sequences) ->
@@ -55,6 +61,8 @@ loadRoutes = (server) ->
       return error res, err if err
 
       res.send deleted: deleted
+
+  server.get "/snapshots/:id", getResource "Snapshot"
 
   server.get "/snapshots", (req, res) ->
     # @TODO: this only serves snapshots for a given sequenceId

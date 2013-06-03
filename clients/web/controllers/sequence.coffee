@@ -22,7 +22,7 @@ class SequenceController extends Controller
         snapshots: snapshots
 
   viewSnapshot: (req, res) ->
-    Client.getSnapshot _id(req.params.snapshotId), (err, doc) =>
+    Client.getSnapshot req.params.snapshotId, (err, doc) =>
       res.send @render "snapshot",
         page: "snapshot"
         snapshot: doc
