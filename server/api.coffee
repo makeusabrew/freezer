@@ -102,6 +102,11 @@ module.exports =
     server.use restify.queryParser()
     server.use restify.bodyParser()
 
+    server.use (req, res, next) ->
+      # @TODO check debug etc...
+      console.log "[API]", req.method, req.url
+      next()
+
     loadRoutes server
 
     server.listen port
