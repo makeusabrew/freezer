@@ -6,8 +6,8 @@ data from sources outside of their control which is hard to reproduce but
 important to code against.
 
 It works by saving a copy of a given feed each time it changes, later
-allowing fine-grained playback of those changes when *you* want them to
-change. These changes can be initiated manually or programatically
+allowing fine-grained playback of those changes in a predictable, controlled
+manner. These changes can be initiated manually or programatically
 to allow manual or automated testing against traditionally hard to capture,
 hard to analyse, hard to control and hard to replay data.
 
