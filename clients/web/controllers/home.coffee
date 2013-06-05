@@ -13,6 +13,8 @@ getSessions = (callback) ->
           counts += 1
 
           session._sequence = sequence
+          #@TODO host from config or something...
+          session._url = "http://localhost:9999#{session.path}"
 
           callback sessions if counts is sessions.length
 
@@ -32,7 +34,9 @@ getSequences = (sessions, callback) ->
 
 isActive = (sequence, sessions) ->
   for session in sessions
-    return true if sequence._id.equals(session.sequenceId)
+    # @TODO these are ObjectIDs, so why doesn't .equals() work?
+    # @see http://mongodb.github.io/node-mongodb-native/api-bson-generated/objectid.html
+    return true if sequence._id is session.sequenceId
   return false
 
 class HomeController extends Controller

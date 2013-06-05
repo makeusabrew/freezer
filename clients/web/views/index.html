@@ -35,7 +35,7 @@
     <table class="table table-bordered table-striped">
         <thead>
             <tr>
-                <th>Original URL</th>
+                <th>Sequence</th>
                 <th>Available as</th>
                 <th>Current snapshot</th>
                 <th>Started</th>
@@ -44,10 +44,10 @@
         <tbody>
             {% for session in sessions %}
                 <tr>
-                    <td>{{ session._sequence.url }}</td>
-                    <td>http://localhost:9999{{ session.path }}</td>
+                    <td><a href="/sequence/{{ session.sequenceId }}">{{ session.sequenceId }}</a></td>
+                    <td><a href="{{ session._url }}">{{ session._url }}</td>
                     <td><a href="/sequence/{{ session.sequenceId }}/snapshot/{{ session.snapshotId }}">{{ session.snapshotId }}</a></td>
-                    <td>{{ session.created }}</td>
+                    <td>{{ session.created|date("D g:ia") }}</td>
                 </tr>
             {% endfor %}
         </tbody>

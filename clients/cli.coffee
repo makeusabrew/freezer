@@ -19,6 +19,7 @@ path        = process.argv[3] || url.path
 currentMode = Mode.factory "manual"
 
 start = ->
+  # @TODO we should accept either a URL or a sequence ID here based on what the input looks like
   options =
     url: url.href
     path: path
@@ -31,13 +32,15 @@ start = ->
     currentMode.setSession session
 
     currentMode.loadSnapshots ->
-      Prompt.log "Managing snapshots for sequence #{session.sequence._id}, URL: #{session.sequence.url}"
+      Prompt.log "Managing snapshots for sequence: #{session.sequence._id}\nURL: #{session.sequence.url}"
+      # @TODO host below needs to come from config or be discovered... or something
       Prompt.log "Snapshot server responding to requests on http://localhost:9999#{session.path}"
 
       currentMode.loadAbsolute 0, (err) ->
         throw err if err
 
     Prompt.on "SIGINT", ->
+      console.log "Closing session..."
       Client.deleteSession session._id, (err) ->
         throw err if err
 

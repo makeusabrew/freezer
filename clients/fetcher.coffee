@@ -17,7 +17,6 @@ Client.getSequenceByUrl url, (err, sequence) ->
   console.log "creating new sequence for #{url}"
 
   Client.createSequenceForUrl url, (err, sequence) ->
-    console.log "inserted new sequence #{sequence._id}"
     fetchLastHash sequence
 
 fetchLastHash = (sequence) ->
@@ -29,12 +28,13 @@ fetchLastHash = (sequence) ->
     startSequence sequence, interval, hash
 
 startSequence = (sequence, interval, hash) ->
-    console.log "starting sequence #{sequence._id}, URL #{sequence.url}, interval #{interval}, start hash #{hash}\n"
+    console.log "starting sequence #{sequence._id}\nURL: #{sequence.url}\ninterval: #{interval}\nstart hash: #{hash}"
 
     lastHash = hash
 
     do fetch = ->
         request sequence.url, (err, response, body) ->
+            # always queue another request, regardless of how early the subsequent logic bails out
             setTimeout fetch, interval
 
             return console.log "error fetching!" if err or response.statusCode isnt 200
@@ -47,7 +47,7 @@ startSequence = (sequence, interval, hash) ->
 
             data = parseJSON body
 
-            return console.log "cannot save JSON" if not data
+            return console.log "could not parse JSON" if not data
 
             # make sure we only save the hash once we're sure we can save
             lastHash = thisHash
@@ -65,12 +65,13 @@ writeSnapshot = (sequence, raw, data, hash) ->
   Client.createSnapshot object, (err, snapshot) ->
       throw err if err
 
-      console.log "wrote snapshot #{snapshot._id}"
+      console.log "wrote #{snapshot._id}"
 
 parseJSON = (data) ->
     try
         return JSON.parse data
     catch e
+        console.log "JSON parse error", e
         return null
 
 getHash = (data) ->

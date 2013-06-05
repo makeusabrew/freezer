@@ -11,7 +11,7 @@ onRequest = (req, res) ->
 
     return res.end "no active session for URL" if err or not session
 
-    console.log "#{req.url} matches session for sequence #{session.sequenceId}"
+    #console.log "#{req.url} matches session for sequence #{session.sequenceId}"
 
     Freezer.getCurrentSnapshot session, req, (err, snapshot) ->
       console.log "ERROR", err if err
@@ -23,7 +23,8 @@ onRequest = (req, res) ->
 
       res.end snapshot.raw
 
-      console.log "[FREEZER] served #{snapshot._id}: #{snapshot.timestamp}"
+      date = new Date snapshot.timestamp
+      console.log "[WEB] served #{snapshot._id}: #{date}"
 
 Server =
   start: (port) ->
