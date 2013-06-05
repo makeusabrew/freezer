@@ -40,11 +40,11 @@ start = ->
         throw err if err
 
     Prompt.on "SIGINT", ->
-      console.log "Closing session..."
+      Prompt.log "Closing session..."
       Client.deleteSession session._id, (err) ->
         throw err if err
 
-        console.log "session terminated, exiting"
+        Prompt.log "session terminated, exiting"
         process.exit 0
 
 Prompt.on "input", (data) ->
