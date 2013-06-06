@@ -1,7 +1,10 @@
 {
   "name": "freezer",
   "version": "0.0.0",
-  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/makeusabrew/freezer.git"
+  },
   "dependencies": {
     "request": "*",
     "mkdirp": "*",
@@ -12,6 +15,7 @@
   },
   "devDependencies": {
     "grunt": "*",
-    "grunt-simple-mocha": "~0.4.0"
+    "grunt-simple-mocha": "~0.4.0",
+    "pow-mongodb-fixtures": "*"
   }
 }

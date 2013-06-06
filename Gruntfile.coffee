@@ -7,6 +7,9 @@ module.exports = (grunt) ->
                 reporter: "spec"
 
             complete:
-                src: ["**/test/*.coffee"]
+                src: [
+                  "**/test/*.coffee",
+                  "server/test/api/*.coffee"
+                ]
 
     grunt.registerTask "test", ["simplemocha:complete"]

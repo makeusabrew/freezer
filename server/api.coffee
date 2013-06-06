@@ -24,7 +24,7 @@ putResource = (resource) ->
     id = _id(req.params.id)
     delete req.params.id
 
-    Freezer["update#{resource}"] id, req.params, (err, resource)
+    Freezer["update#{resource}"] id, req.params, (err, resource) ->
       return error res, err if err
 
       return notFound res if not resource

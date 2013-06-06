@@ -1,10 +1,13 @@
 MongoClient = require("mongodb").MongoClient
 ObjectID    = require("mongodb").ObjectID
 
+#@TODO utilise proper config
+env = process.env.NODE_ENV || "build"
+
 #@TODO: un-hardcode
 host   = "localhost"
 port   = 27017
-dbname = "freezer_test"
+dbname = "freezer_#{env}"
 
 db = null
 
