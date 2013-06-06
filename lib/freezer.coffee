@@ -39,15 +39,26 @@ Freezer =
     db.collection("sequence").findOne url: url, (err, object) ->
       callback err, object
 
-  createSequenceForUrl: (url, callback) ->
+  createSequence: (params, callback) ->
     object =
-      url: url
+      url: params.url
+      name: params.name
+      comments: params.comments
       created: new Date
 
     db.collection("sequence").insert object, (err, objects) ->
       return callback err, null if err
 
       callback null, objects[0]
+
+  updateSequence: (id, params, callback) ->
+    db.collection("sequence").findAndModify(
+      {_id: id},
+      {_id: 1},
+      {$set: params}
+      {new: true},
+      callback
+    )
 
   getLastSnapshot: (sequenceId, callback) ->
     cursor = db.collection("snapshot").find sequenceId: sequenceId

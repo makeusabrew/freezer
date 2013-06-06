@@ -18,20 +18,56 @@ getResource = (resource) ->
 
       res.send resource
 
+putResource = (resource) ->
+  (req, res, next) ->
+
+    id = _id(req.params.id)
+    delete req.params.id
+
+    Freezer["update#{resource}"] id, req.params, (err, resource)
+      return error res, err if err
+
+      return notFound res if not resource
+
+      res.send resource
+
+getResources = (resource) ->
+  (req, res, next) ->
+    Freezer["get#{resource}s"] req.params, (err, resources) ->
+      return error res, err if err
+      res.send resources
+
+createResource = (resource) ->
+  (req, res, next) ->
+    Freezer["create#{resource}"] req.params, (err, resource) ->
+      return error res, err if err
+      res.send resource
+
+deleteResource = (resource) ->
+  (req, res, next) ->
+    Freezer["delete#{resource}"] _id(req.params.id), (err, deleted) ->
+      return error res, err if err
+
+      res.send deleted: deleted
+
 loadRoutes = (server) ->
+  ###
+  # sequences
+  ###
   server.get "/sequences/:id", getResource "Sequence"
 
-  server.get "/sequences", (req, res) ->
-    Freezer.getSequences req.params, (err, sequences) ->
-      return error res, err if err
-      res.send sequences
+  server.put "/sequences/:id", putResource "Sequence"
 
-  #@TODO this only takes a URL as input...
-  server.post "/sequences", (req, res) ->
-    Freezer.createSequenceForUrl req.params.url, (err, sequence) ->
-      return error res, err if err
-      res.send sequence
+  server.del "/sequences/:id", deleteResource "Sequence"
 
+  server.get "/sequences", getResources "Sequence"
+
+  server.post "/sequences", createResource "Sequence"
+
+
+  ###
+  # sessions
+  ###
   server.get "/sessions", (req, res) ->
     Freezer.getSessions req.params, (err, sessions) ->
       return error res, err if err
