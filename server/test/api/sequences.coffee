@@ -84,3 +84,50 @@ describe "REST API - Sequences Resource", ->
         assert.equal "http://example.com/test", data.url
         assert.equal "A test sequence", data.name
         assert.equal "4ed2b809d7446b9a0e000014", data._id
+
+  describe "PUT /sequences/:id", ->
+    describe "with an invalid resource ID", ->
+      before (done) ->
+        Helper.put "/sequences/123456789012", {}, done
+
+      it "should return a 404 Not Found", ->
+        assert.equal 404, Helper.getStatus()
+
+    describe "with a valid resource ID", ->
+      before (done) ->
+        params =
+          url: "http://new.com"
+          name: "New name"
+
+        Helper.put "/sequences/4ed2b809d7446b9a0e000014", params, done
+
+      it "should return a 200", ->
+        assert.equal 200, Helper.getStatus()
+
+      it "should return the correct body", ->
+        data = Helper.getJSON()
+
+        assert.equal "http://new.com", data.url
+        assert.equal "New name", data.name
+
+  describe "DELETE /sequences/:id", ->
+    ###
+    describe "with an invalid resource ID", ->
+      before (done) ->
+        Helper.delete "/sequences/123456789012", done
+
+      it "should return a 404 Not Found", ->
+        assert.equal 404, Helper.getStatus()
+    ###
+
+    describe "with a valid resource ID", ->
+      before (done) ->
+        Helper.delete "/sequences/4ed2b809d7446b9a0e000014", done
+
+      it "should return a 200", ->
+        assert.equal 200, Helper.getStatus()
+
+      it "should return the correct body", ->
+        data = Helper.getJSON()
+
+        assert.equal 1, data.deleted

@@ -60,6 +60,9 @@ Freezer =
       callback
     )
 
+  deleteSequence: (id, callback) ->
+    db.collection("sequence").remove _id: id, callback
+
   getLastSnapshot: (sequenceId, callback) ->
     cursor = db.collection("snapshot").find sequenceId: sequenceId
 
