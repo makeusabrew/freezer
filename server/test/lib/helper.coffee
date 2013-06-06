@@ -3,6 +3,7 @@ request = require "request"
 
 # @TODO load db from config...
 fixtures = require("pow-mongodb-fixtures").connect "freezer_#{process.env.NODE_ENV}"
+_id     = require('pow-mongodb-fixtures').createObjectId
 
 Freezer = require "../../../lib/freezer"
 
@@ -59,6 +60,17 @@ Helper =
         data = @getJSON()
         return data[key]
 
-    start: (done) -> fixtures.clear -> Freezer.start done
+    start: (done) ->
+      # @TODO from file(s)
+      data =
+        sequence: [{
+          _id: _id "4ed2b809d7446b9a0e000014"
+          url: "http://example.com/test"
+          name: "A test sequence"
+          created: new Date()
+        }]
+          
+      fixtures.clearAllAndLoad data, ->
+        Freezer.start done
 
 module.exports = Helper

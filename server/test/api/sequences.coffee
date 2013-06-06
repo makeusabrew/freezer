@@ -18,7 +18,11 @@ describe "REST API - Sequences Resource", ->
     it "should return the correct body", ->
       data = Helper.getJSON()
 
-      assert.equal 0, data.length
+      assert.equal 1, data.length
+
+      res = data[0]
+
+      assert.equal "http://example.com/test", res.url
 
   describe "POST /sequences", ->
     before (done) ->
