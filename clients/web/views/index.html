@@ -8,6 +8,7 @@
         <thead>
             <tr>
                 <th>URL</th>
+                <th>Created</th>
                 <th>Snapshots</th>
                 <th>Active?</th>
                 <th>Options</th>
@@ -17,6 +18,7 @@
             {% for sequence in sequences %}
                 <tr>
                     <td><a href="/sequence/{{sequence._id}}">{{ sequence.url }}</a></td>
+                    <td>{{ sequence.created|date("jS F H:i") }}</td>
                     <td>{{ sequence._snapshots }}</td>
                     <td>{% if sequence._active %}Yes{% else %}No{% endif %}</td>
                     <td>
