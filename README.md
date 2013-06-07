@@ -109,6 +109,34 @@ the contents of snapshot 5.
 example as it doesn't change much nor is it particularly complex. This
 example could do with replacing with a faster, larger feed.
 
+## Client API
+
+**All** clients should interact with the REST API; the three built-in clients
+do this using a thin wrapper around restify's JSONClient object. If you want to
+make a new client to be packaged with this project you can simply require
+```lib/client``` (not yet fully implemented, but fairly simple to expand on). Any
+external/non node.js client will have to implement their own REST client. The server
+API is new, partially implemented and pretty buggy, although tests do now exist
+covering the ```sequence``` resource.
+
+### REST endpoints
+
+Note: The API only returns JSON at present.
+
+**GET /sequences** - retrieve an array of all sequences
+
+**GET /sequences/:id** - retrieve a sequence object. ```:id``` must be a MongoDB ObjectId
+
+**POST /sequences** - create a new sequence. Params: url*, name, comments. Returns the newly create object
+
+**PUT /sequences/:id** - update a sequence. Params as above. Returns the modified object
+
+**DELETE /sequences/:id** - delete a sequence. Returns an object with a ```deleted``` integer of 0 or 1 (@TODO: why?)
+
+The above endpoints are the only ones covered by tests. Enough other endpoints for session and snapshot
+resources are also implemented but not particularly well hardened at present - you can find them all in
+```server/api.coffee```. Please feel free to implement/fix/test them :).
+
 ## License
 
 The MIT License
