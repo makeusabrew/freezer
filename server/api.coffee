@@ -141,8 +141,13 @@ loadRoutes = (server) ->
 error    = (res, err) -> res.send new restify.InternalError(err)
 notFound = (res, msg="Resource not found") -> res.send new restify.ResourceNotFoundError msg
 
+booted = false
 module.exports =
   start: (port) ->
+    return if booted
+
+    booted = true
+
     server = restify.createServer
       name: "freezer-api"
       version:" 0.0.1"

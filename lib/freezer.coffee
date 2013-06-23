@@ -22,8 +22,8 @@ getFirst = (cursor, callback) ->
 Freezer =
   start: (callback) -> db.connect callback
 
-  getSession: (url, callback) ->
-    cursor = db.collection("session").find path: url
+  getSession: (path, callback) ->
+    cursor = db.collection("session").find path: path
     cursor.sort(created: -1).limit(1)
 
     getFirst cursor, callback

@@ -5,6 +5,8 @@ request = require "request"
 fixtures = require("pow-mongodb-fixtures").connect "freezer_#{process.env.NODE_ENV}"
 _id     = require('pow-mongodb-fixtures').createObjectId
 
+started = false
+
 Freezer = require "../../../lib/freezer"
 
 Helper =
@@ -61,6 +63,8 @@ Helper =
         return data[key]
 
     start: (done) ->
+      return process.nextTick done if started
+
       # @TODO from file(s)
       data =
         sequence: [{
@@ -71,6 +75,7 @@ Helper =
         }]
           
       fixtures.clearAllAndLoad data, ->
+        started = true
         Freezer.start done
 
 module.exports = Helper
