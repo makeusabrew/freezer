@@ -18,8 +18,11 @@ url         = urlParse process.argv[2]
 path        = process.argv[3] || url.path
 currentMode = Mode.factory "manual"
 
+# Refactor steps:
+# get the snapshots for the supplied URL first
+# create a session with the first snapshot in the list
+
 start = ->
-  # @TODO we should accept either a URL or a sequence ID here based on what the input looks like
   options =
     url: url.href
     path: path

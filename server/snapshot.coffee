@@ -11,8 +11,6 @@ onRequest = (req, res) ->
 
     return res.end "no active session for URL" if err or not session
 
-    #console.log "#{req.url} matches session for sequence #{session.sequenceId}"
-
     Freezer.getCurrentSnapshot session, req, (err, snapshot) ->
       console.log "ERROR", err if err
 
