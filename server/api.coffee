@@ -6,7 +6,13 @@ restify = require "restify"
 
 Freezer = require "../lib/freezer"
 
-_id = (id) -> Freezer.toObjectId id
+_id = (id) ->
+  try
+    id = Freezer.toObjectId id
+  catch e
+    # no-op
+
+  return id
 
 getResource = (resource) ->
   (req, res, next) ->
@@ -75,9 +81,8 @@ loadRoutes = (server) ->
 
   server.post "/sessions", (req, res) ->
     options =
-      url: req.params.url
       path: req.params.path
-      mode: "manual" #@TODO from params...
+      snapshotId: _id(req.params.snapshotId)
 
     Freezer.createSession options, (err, session) ->
       return error res, err if err
@@ -138,8 +143,23 @@ loadRoutes = (server) ->
 
       return res.send snapshot
 
-error    = (res, err) -> res.send new restify.InternalError(err)
+error    = (res, err) -> res.send parseError err
+
 notFound = (res, msg="Resource not found") -> res.send new restify.ResourceNotFoundError msg
+
+parseError = (err) ->
+  type = "InternalError"
+  messsage = "Internal Server Error"
+
+  try
+    data = JSON.parse err
+    message = data.message
+    switch data.type
+      when "validation" then type = "InvalidArgumentError"
+  catch e
+    # no-op
+
+  return new restify[type](message)
 
 booted = false
 module.exports =

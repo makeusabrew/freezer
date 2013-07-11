@@ -62,14 +62,13 @@ describe "REST API - Sequences Resource", ->
       before (done) ->
         Helper.get "/sequences/1234", done
 
-      # @TODO: really? a 500?
-      it "should return a 500", ->
-        assert.equal 500, Helper.getStatus()
+      it "should return a 404 Not Found", ->
+        assert.equal 404, Helper.getStatus()
 
       it "should return the correct body", ->
         data = Helper.getJSON()
 
-        assert.equal "Argument passed in must be a single String of 12 bytes or a string of 24 hex characters", data.message
+        assert.equal "Resource not found", data.message
 
     describe "with a valid resource ID", ->
       before (done) ->

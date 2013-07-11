@@ -86,19 +86,16 @@ Freezer =
     db.collection("snapshot").count sequenceId: sequenceId, callback
 
   createSession: (options, callback) ->
-    @getSequenceByUrl options.url, (err, sequence) =>
-      return callback err, null if err
+    # @TODO abstract validation
+    return callback error "validation", "invalid path" if not options.path
+    return callback error "validation", "invalid snapshot ID" if not options.snapshotId
 
-      # @TODO although it works with the outer API layer, throwing an error
-      # for a null result here isn't consistent with what we do elsewhere
-      # (which is just callback with a null object)
-      return callback "No sequence for url #{options.url}", null if not sequence
+    @getSnapshot options.snapshotId, (err, snapshot) =>
+      return callback error "validation", "snapshotID does not exist" if not snapshot
 
       object =
-        sequenceId: sequence._id
         path: options.path
-        mode: options.mode
-        snapshotId: null
+        snapshotId: options.snapshotId
         created: new Date
         updated: new Date
 
@@ -106,10 +103,10 @@ Freezer =
         return callback err, null if err
 
         session = objects[0]
-        session.sequence = sequence
 
         callback null, session
 
+  # no; needs to be a generic update session. API can abstract it
   setSessionSnapshot: (sessionId, snapshotId, callback) ->
     db.collection("session").findAndModify(
       {_id: sessionId},
@@ -131,5 +128,11 @@ Freezer =
   getSequence: (id, callback) -> db.findById "sequence", id, callback
 
   toObjectId: (id) -> db.toObjectId id
+
+error = (type, message) ->
+  msg = JSON.stringify
+    type: type
+    message: message
+  return msg
 
 module.exports = Freezer

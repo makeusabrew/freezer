@@ -73,6 +73,9 @@ Helper =
           name: "A test sequence"
           created: new Date()
         }]
+        snapshot: [{
+          _id: _id "9ed2b809d7446b9a0e000001"
+        }]
           
       fixtures.clearAllAndLoad data, ->
         started = true

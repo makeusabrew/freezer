@@ -28,31 +28,25 @@ describe "REST API - Sessions Resource", ->
 
         Helper.post "/sessions", params, done
 
-      it "should return a 400 Bad Request", ->
-        assert.equal 400, Helper.getStatus()
+      it "should return a 409 Conflict", ->
+        assert.equal 409, Helper.getStatus()
 
     describe "with an invalid snapshot ID", ->
       before (done) ->
-        params = {}
+        params =
+          path: "/foo/bar"
+          snapshotId: "invalid"
 
         Helper.post "/sessions", params, done
 
-      it "should return a 400 Bad Request", ->
-        assert.equal 400, Helper.getStatus()
-
-    describe "with an invalid snapshot ID", ->
-      before (done) ->
-        params = {}
-
-        Helper.post "/sessions", params, done
-
-      it "should return a 400 Bad Request", ->
-        assert.equal 400, Helper.getStatus()
+      it "should return a 409 Conflict", ->
+        assert.equal 409, Helper.getStatus()
 
     describe "with valid data", ->
       before (done) ->
         params =
-          valid: "data"
+          path: "/foo/bar"
+          snapshotId: "9ed2b809d7446b9a0e000001"
 
         Helper.post "/sessions", params, done
 
@@ -62,12 +56,13 @@ describe "REST API - Sessions Resource", ->
       it "should return the correct body", ->
         data = Helper.getJSON()
 
-        assert.equal "data", data.whatever
+        assert.equal "/foo/bar", data.path
 
         assert.ok data._id
         assert.ok data.created
         assert.ok data.updated
 
+###
     describe "with a path which is already in use", ->
       before (done) ->
         params =
