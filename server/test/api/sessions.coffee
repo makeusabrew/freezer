@@ -4,12 +4,12 @@ server  = require("../../api").start 9876
 
 Helper.host = "http://localhost:9876"
 
+before (done) -> Helper.start done
+
 describe "REST API - Sessions Resource", ->
-  before (done) ->
-    Helper.start done
 
   describe "GET /sessions", ->
-    before (done) ->
+    beforeEach (done) ->
       Helper.get "/sessions", done
 
     it "should return a 200 OK", ->
@@ -23,7 +23,7 @@ describe "REST API - Sessions Resource", ->
   describe "POST /sessions", ->
 
     describe "with invalid data", ->
-      before (done) ->
+      beforeEach (done) ->
         params = {}
 
         Helper.post "/sessions", params, done
@@ -32,7 +32,7 @@ describe "REST API - Sessions Resource", ->
         assert.equal 409, Helper.getStatus()
 
     describe "with an invalid snapshot ID", ->
-      before (done) ->
+      beforeEach (done) ->
         params =
           path: "/foo/bar"
           snapshotId: "invalid"
@@ -43,7 +43,7 @@ describe "REST API - Sessions Resource", ->
         assert.equal 409, Helper.getStatus()
 
     describe "with valid data", ->
-      before (done) ->
+      beforeEach (done) ->
         params =
           path: "/foo/bar"
           snapshotId: "9ed2b809d7446b9a0e000001"
@@ -62,9 +62,8 @@ describe "REST API - Sessions Resource", ->
         assert.ok data.created
         assert.ok data.updated
 
-###
-    describe "with a path which is already in use", ->
-      before (done) ->
+    describe.skip "with a path which is already in use", ->
+      beforeEach (done) ->
         params =
           valid: "data"
 
@@ -74,7 +73,7 @@ describe "REST API - Sessions Resource", ->
         assert.equal 403, Helper.getStatus()
 
       describe "with the force flag set", ->
-        before (done) ->
+        beforeEach (done) ->
           params =
             force: true
 

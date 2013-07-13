@@ -4,12 +4,13 @@ server  = require("../../api").start 9876
 
 Helper.host = "http://localhost:9876"
 
+before (done) ->
+  Helper.start done
+
 describe "REST API - Sequences Resource", ->
-  before (done) ->
-    Helper.start done
 
   describe "GET /sequences", ->
-    before (done) ->
+    beforeEach (done) ->
       Helper.get "/sequences", done
 
     it "should return a 200 OK", ->
@@ -25,7 +26,7 @@ describe "REST API - Sequences Resource", ->
       assert.equal "http://example.com/test", res.url
 
   describe "POST /sequences", ->
-    before (done) ->
+    beforeEach (done) ->
       params =
         url: "http://foo.com"
         name: "foo"
@@ -47,7 +48,7 @@ describe "REST API - Sequences Resource", ->
 
   describe "GET /sequences/:id", ->
     describe "with an invalid resource ID", ->
-      before (done) ->
+      beforeEach (done) ->
         Helper.get "/sequences/123456789012", done
 
       it "should return a 404 Not Found", ->
@@ -71,7 +72,7 @@ describe "REST API - Sequences Resource", ->
         assert.equal "Resource not found", data.message
 
     describe "with a valid resource ID", ->
-      before (done) ->
+      beforeEach (done) ->
         Helper.get "/sequences/4ed2b809d7446b9a0e000014", done
 
       it "should return a 200", ->
@@ -86,14 +87,14 @@ describe "REST API - Sequences Resource", ->
 
   describe "PUT /sequences/:id", ->
     describe "with an invalid resource ID", ->
-      before (done) ->
+      beforeEach (done) ->
         Helper.put "/sequences/123456789012", {}, done
 
       it "should return a 404 Not Found", ->
         assert.equal 404, Helper.getStatus()
 
     describe "with a valid resource ID", ->
-      before (done) ->
+      beforeEach (done) ->
         params =
           url: "http://new.com"
           name: "New name"
@@ -110,16 +111,16 @@ describe "REST API - Sequences Resource", ->
         assert.equal "New name", data.name
 
   describe "DELETE /sequences/:id", ->
-    ###
-    describe "with an invalid resource ID", ->
-      before (done) ->
+    describe.skip "with an invalid resource ID", ->
+      beforeEach (done) ->
         Helper.delete "/sequences/123456789012", done
 
       it "should return a 404 Not Found", ->
         assert.equal 404, Helper.getStatus()
-    ###
 
     describe "with a valid resource ID", ->
+      # @TODO set up this sequence *first*, then delete it and switch
+      # to a beforeEach
       before (done) ->
         Helper.delete "/sequences/4ed2b809d7446b9a0e000014", done
 
