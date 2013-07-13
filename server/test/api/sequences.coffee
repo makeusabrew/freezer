@@ -4,26 +4,38 @@ server  = require("../../api").start 9876
 
 Helper.host = "http://localhost:9876"
 
-before (done) ->
-  Helper.start done
+before (done) -> Helper.start done
 
 describe "REST API - Sequences Resource", ->
 
+  beforeEach ->
+    @sequence =
+      _id: Helper._id "4ed2b809d7446b9a0e000014"
+      url: "http://example.com/test"
+      name: "A test sequence"
+      created: new Date()
+
   describe "GET /sequences", ->
-    beforeEach (done) ->
-      Helper.get "/sequences", done
 
-    it "should return a 200 OK", ->
-      assert.equal 200, Helper.getStatus()
+    describe "with a single resource in the collection", ->
 
-    it "should return the correct body", ->
-      data = Helper.getJSON()
+      beforeEach (done) ->
 
-      assert.equal 1, data.length
+        Helper.fixture sequence: [@sequence], ->
+          Helper.get "/sequences", done
 
-      res = data[0]
+      it "should return a 200 OK", ->
+        assert.equal 200, Helper.getStatus()
 
-      assert.equal "http://example.com/test", res.url
+      it "should return the correct body", ->
+        data = Helper.getJSON()
+
+        assert.equal 1, data.length
+
+        res = data[0]
+
+        assert.equal "http://example.com/test", res.url
+        assert.ok res._id
 
   describe "POST /sequences", ->
     beforeEach (done) ->
@@ -73,7 +85,8 @@ describe "REST API - Sequences Resource", ->
 
     describe "with a valid resource ID", ->
       beforeEach (done) ->
-        Helper.get "/sequences/4ed2b809d7446b9a0e000014", done
+        Helper.fixture sequence: [@sequence], ->
+          Helper.get "/sequences/4ed2b809d7446b9a0e000014", done
 
       it "should return a 200", ->
         assert.equal 200, Helper.getStatus()
@@ -111,23 +124,30 @@ describe "REST API - Sequences Resource", ->
         assert.equal "New name", data.name
 
   describe "DELETE /sequences/:id", ->
-    describe.skip "with an invalid resource ID", ->
+
+    describe "with an invalid resource ID", ->
+
       beforeEach (done) ->
         Helper.delete "/sequences/123456789012", done
-
-      it "should return a 404 Not Found", ->
-        assert.equal 404, Helper.getStatus()
-
-    describe "with a valid resource ID", ->
-      # @TODO set up this sequence *first*, then delete it and switch
-      # to a beforeEach
-      before (done) ->
-        Helper.delete "/sequences/4ed2b809d7446b9a0e000014", done
 
       it "should return a 200", ->
         assert.equal 200, Helper.getStatus()
 
-      it "should return the correct body", ->
+      it "should return a deleted count of zero", ->
+        data = Helper.getJSON()
+
+        assert.equal 0, data.deleted
+
+    describe "with a valid resource ID", ->
+
+      beforeEach (done) ->
+        Helper.fixture sequence: [@sequence], ->
+          Helper.delete "/sequences/4ed2b809d7446b9a0e000014", done
+
+      it "should return a 200", ->
+        assert.equal 200, Helper.getStatus()
+
+      it "should return a deleted count of one", ->
         data = Helper.getJSON()
 
         assert.equal 1, data.deleted

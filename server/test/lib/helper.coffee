@@ -62,22 +62,15 @@ Helper =
         data = @getJSON()
         return data[key]
 
+    fixture: (data, done) ->
+      fixtures.clearAndLoad data, done
+
+    _id: _id
+
     start: (done) ->
       return process.nextTick done if started
 
-      # @TODO from file(s)
-      data =
-        sequence: [{
-          _id: _id "4ed2b809d7446b9a0e000014"
-          url: "http://example.com/test"
-          name: "A test sequence"
-          created: new Date()
-        }]
-        snapshot: [{
-          _id: _id "9ed2b809d7446b9a0e000001"
-        }]
-          
-      fixtures.clearAllAndLoad data, ->
+      fixtures.clear ->
         started = true
         Freezer.start done
 

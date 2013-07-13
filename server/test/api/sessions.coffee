@@ -44,11 +44,18 @@ describe "REST API - Sessions Resource", ->
 
     describe "with valid data", ->
       beforeEach (done) ->
-        params =
-          path: "/foo/bar"
-          snapshotId: "9ed2b809d7446b9a0e000001"
+        data =
+          snapshot: [{
+            _id: Helper._id "9ed2b809d7446b9a0e000001"
+          }]
 
-        Helper.post "/sessions", params, done
+        Helper.fixture data, ->
+
+          params =
+            path: "/foo/bar"
+            snapshotId: "9ed2b809d7446b9a0e000001"
+
+          Helper.post "/sessions", params, done
 
       it "should return a 200 OK", ->
         assert.equal 200, Helper.getStatus()
