@@ -23,32 +23,42 @@ currentMode = Mode.factory "manual"
 # create a session with the first snapshot in the list
 
 start = ->
-  options =
-    url: url.href
-    path: path
 
-  Client.createSession options, (err, session) ->
+  Client.getSequenceByUrl url.href, (err, sequence) ->
     throw err if err
 
-    Prompt.log "registered new session #{session._id}"
+    Client.getLastSnapshot sequence._id, (err, snapshot) ->
+      throw err if err
 
-    currentMode.setSession session
+      options =
+        path: encodeURIComponent(path)
+        snapshotId: snapshot._id
 
-    currentMode.loadSnapshots ->
-      Prompt.log "Managing snapshots for sequence: #{session.sequence._id}\nURL: #{session.sequence.url}"
-      # @TODO host below needs to come from config or be discovered... or something
-      Prompt.log "Snapshot server responding to requests on http://localhost:9999#{session.path}"
-
-      currentMode.loadAbsolute 0, (err) ->
+      Client.createSession options, (err, session) ->
         throw err if err
 
-    Prompt.on "SIGINT", ->
-      Prompt.log "Closing session..."
-      Client.deleteSession session._id, (err) ->
-        throw err if err
+        Prompt.log "registered new session #{session._id}"
 
-        Prompt.log "session terminated, exiting"
-        process.exit 0
+        # @TODO mode epxects this...
+        session.sequenceId = sequence._id
+
+        currentMode.setSession session
+
+        currentMode.loadSnapshots ->
+          Prompt.log "Managing snapshots for sequence: #{sequence._id}\nURL: #{sequence.url}"
+          # @TODO host below needs to come from config or be discovered... or something
+          Prompt.log "Snapshot server responding to requests on http://localhost:9999#{session.path}"
+
+          currentMode.loadAbsolute 0, (err) ->
+            throw err if err
+
+        Prompt.on "SIGINT", ->
+          Prompt.log "Closing session..."
+          Client.deleteSession session._id, (err) ->
+            throw err if err
+
+            Prompt.log "session terminated, exiting"
+            process.exit 0
 
 Prompt.on "input", (data) ->
     help = "Unrecognised command '#{data}'\n - try 'list', '(n)ext', '(b)ack', 'current', 'reload', 'list', 'load [n]', 'diff [n] [m]'"
@@ -114,7 +124,7 @@ handleArgs = (data) ->
         for snapshot in [s1, s2]
             do (snapshot) ->
 
-                fs.logFile path+snapshot._id, Utils.formatJSON(snapshot.raw), (err) ->
+                fs.writeFile path+snapshot._id, Utils.formatJSON(snapshot.raw), (err) ->
                     throw err if err
 
                     files += 1

@@ -17,7 +17,7 @@ module.exports =
       callback err, obj
 
   getSequenceByUrl: (url, callback) ->
-    client.get "/sequences?url=#{url}", (err, req, res, obj) ->
+    client.get "/sequences?url=#{encodeURIComponent(url)}", (err, req, res, obj) ->
 
       callback err, getFirst obj
 

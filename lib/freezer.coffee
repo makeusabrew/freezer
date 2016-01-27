@@ -46,10 +46,10 @@ Freezer =
       comments: params.comments
       created: new Date
 
-    db.collection("sequence").insert object, (err, objects) ->
+    db.collection("sequence").insert object, (err, result) ->
       return callback err, null if err
 
-      callback null, objects[0]
+      callback null, result.ops[0]
 
   updateSequence: (id, params, callback) ->
     db.collection("sequence").findAndModify(
@@ -72,10 +72,10 @@ Freezer =
     getFirst cursor, callback
 
   createSnapshot: (object, callback) ->
-    db.collection("snapshot").insert object, (err, docs) ->
+    db.collection("snapshot").insert object, (err, result) ->
       return callback err, null if err
 
-      callback null, docs[0]
+      callback null, result.ops[0]
 
   getSnapshotsForSequence: (sequenceId, callback) ->
     cursor = db.collection("snapshot").find sequenceId: sequenceId
@@ -94,15 +94,15 @@ Freezer =
       return callback error "validation", "snapshotID does not exist" if not snapshot
 
       object =
-        path: options.path
+        path: decodeURIComponent(options.path)
         snapshotId: options.snapshotId
         created: new Date
         updated: new Date
 
-      db.collection("session").insert object, (err, objects) ->
+      db.collection("session").insert object, (err, result) ->
         return callback err, null if err
 
-        session = objects[0]
+        session = result.ops[0]
 
         callback null, session
 
@@ -119,7 +119,8 @@ Freezer =
   deleteSession: (sessionId, callback) ->
     db.collection("session").remove _id: sessionId, callback
 
-  getSequences: (params, callback) -> db.collection("sequence").find(params).toArray callback
+  getSequences: (params, callback) ->
+    db.collection("sequence").find(params).toArray callback
 
   getSessions: (params, callback) -> db.collection("session").find(params).toArray callback
 

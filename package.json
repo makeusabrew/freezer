@@ -6,12 +6,12 @@
     "url": "http://github.com/makeusabrew/freezer.git"
   },
   "dependencies": {
-    "request": "*",
-    "mkdirp": "*",
-    "mongodb": "*",
-    "swig": "*",
-    "express": "*",
-    "restify": "*"
+    "express": "^3.0.0",
+    "mkdirp": "^0.5.1",
+    "mongodb": "^2.1.4",
+    "request": "^2.67.0",
+    "restify": "^4.0.3",
+    "swig": "^0.14.0"
   },
   "devDependencies": {
     "grunt": "*",

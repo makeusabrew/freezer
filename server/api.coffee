@@ -170,7 +170,6 @@ module.exports =
 
     server = restify.createServer
       name: "freezer-api"
-      version:" 0.0.1"
 
     server.pre restify.pre.userAgentConnection()
     server.pre restify.pre.pause()
